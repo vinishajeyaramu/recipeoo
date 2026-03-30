@@ -1,0 +1,490 @@
+.land-hero-sec{
+    width: 100%;
+    min-height: 100vh;
+    background-image: url("../Assets/Images/hero-img.jpg");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+    display: flex;
+    flex-direction: column;
+    align-items: start;
+    justify-content: center;
+    padding: 40px;
+}
+.land-hero-sec h3{
+    width: 80%;
+    font-size: 70px;
+    line-height:75.9px;
+    font-weight: 700;
+    text-align: start;
+    letter-spacing:-0.32px;
+    color: #EBB22F;
+    margin-bottom: 2%;
+}
+.land-hero-sec p{
+    width: 53%;
+    font-size: 25px;
+    color: black;
+    line-height: 34px;
+    font-weight: 400;
+    letter-spacing:-0.32px;
+    margin-bottom: 5%;
+}
+.land-hero-sec button{
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #EBB22F;
+    border-radius: 10px;
+    background-color: white;
+    color: #EBB22F;
+    font-size: 15px;
+}
+.land-hero-sec button:hover{
+    background-color: #EBB22F;
+    color: white;
+    border: 2px solid white;
+}
+.widget-sec{
+    width: 100%;
+    height: auto;
+    padding: 20px;
+    display: grid;
+    grid-template-columns: repeat(3,1fr);
+    align-items: center;
+    justify-content: space-between;
+}
+.widget-card{
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+}
+.widget-icon{
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 35px;
+    color: gray;
+
+}
+.widget-card:hover .border{
+    background-color: #EBB22F;
+}
+.widget-cont{
+    width: 70%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: start;
+    padding: 10px;
+}
+.widget-title{
+    font-size: 25px;
+    color: #EBB22F;
+}
+.widget-description{
+    font-size: 18px;
+    color: gray;
+}
+.category-sec{
+    width: 100%;
+    height: auto;
+    padding: 20px;
+    gap: 30px;
+    display: grid;
+    grid-template-columns: repeat(9,1fr);
+    align-items: center;
+    justify-content: space-between;
+}
+.category-sec a{
+    text-decoration: none;
+}
+.category-card{
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid gray;
+    border-radius: 10px;
+}
+.category-icon{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 35px;
+    color: black;
+    margin-top: 20%;
+
+}
+.category-cont{
+     width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+}
+.category-title{
+    font-size: 20px;
+    color: black;
+}
+.category-count{
+    font-size: 15px;
+    color: gray;
+    width: 100%;
+}
+.elementor{
+    width: 100%;
+    height: 100vh;
+    padding: 20px;
+    display: grid;
+    gap: 30px;
+    grid-template-columns: repeat(2,1fr);
+    justify-content: space-between;
+    align-items: start;
+}
+.elementor-card-1{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: start;
+    padding: 40px 30px;
+    border-radius: 30px;
+    background-image: url("../Assets/Images/indian-mom-hand-sprinkling-oregano-260nw-2622733395.webp");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.elementor-card-1 h3{
+    color: #FFFFFF;
+    font-size: 50px;
+    font-weight: 600;
+    width: 80%;
+}
+.elementor-card-1 p{
+    color: #FFFFFF;
+    font-weight: 400;
+    width: 80;
+    font-size: 20px;
+}
+.elementor-card-1 button{
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #EBB22F;
+    border-radius: 10px;
+    background-color: #EBB22F;
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: 500;
+}
+.elementor-card-2{
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    align-items: start;
+    padding: 40px 20px;
+    border-radius: 30px;
+    background-image: url("../Assets/Images/elementor-2.jpg");
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.elementor-card-2 h3{
+    color: #FFFFFF;
+    font-size: 50px;
+    font-weight: 600;
+    width: 80%;
+}
+.elementor-card-2 p{
+    color: #FFFFFF;
+    font-weight: 400;
+    width: 80;
+    font-size: 20px;
+}
+.elementor-card-2 button{
+    width: 100%;
+    padding: 10px;
+    border: 2px solid #EBB22F;
+    border-radius: 10px;
+    background-color: #EBB22F;
+    color: #FFFFFF;
+    font-size: 15px;
+    font-weight: 500;
+}
+.recipes-section{
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+}
+.recipes-btn{
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 15px;
+    justify-content: center;
+    margin: 5%;
+}
+.recipes-btn button{
+    width: 100%;
+    padding: 10px;
+    border-radius: 30px;
+    border: 2px solid #EBB22F;
+    color: #EBB22F;
+    background-color: #FFFFFF;
+    font-size: 15px;
+    font-weight: 500;
+}
+.recipes-btn a{
+    min-width: 17%;
+    color: #EBB22F;
+    text-decoration: none;
+}
+.recipes-btn button:hover a{
+    color: #FFFFFF;
+}
+.recipes-btn button:hover {
+    color: #FFFFFF;
+    background-color: #EBB22F;
+}
+.recipes-container{
+    width: 100%;
+    height: auto;
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+}
+.explore-btn{
+    width: 100%;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 38% 20% 38%;
+    justify-content: center;
+    align-items: center;
+    gap: 20px;
+}
+.explore-btn hr{
+    width: 100%;
+    height: 2%;
+    background-color: gray;
+}
+.explore-btn button{
+    width: 100%;
+    color: gray;
+    padding: 10px;
+    border-radius: 10px;
+    border: 2px solid gray;
+    background-color: #FFFFFF;
+}
+.sec-bg{
+    width: 95%;
+    height: 90vh;
+    margin: 0 auto;
+    background-image: url('../Assets//Images/section-bg-01.jpg');
+    background-position: left;
+    background-repeat: no-repeat;
+    background-size: cover;
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content:center;
+    align-items: flex-end;
+    padding: 30px;
+}
+.sec-bg h3{
+    width: 50%;
+    font-size: 50px;
+    font-weight: 800;
+    color: #000000;
+}
+.sec-bg p{
+    font-size: 20px;
+    font-weight:400;
+    width: 50%;
+}
+.sec-bg button{
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #FFFFFF;
+    color: #000000;
+    border: 2px solid #FFFFFF;
+}
+.video-recipes{
+    width: 100%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+}
+.blog-section{
+    width: 100%;
+    padding: 30px;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.blog-container{
+    width: 100%;
+    height: auto;
+    padding: 10px;
+    display: grid;
+    gap: 30px;
+    grid-template-columns: repeat(3,1fr);
+    align-items: center;
+    justify-content: center;
+}
+.tags-sec{
+    width: 100%;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color:#ebb32f29;
+}
+
+@media screen and (max-width: 1024px) {
+    .land-hero-sec h3,
+    .land-hero-sec p,
+    .sec-bg h3,
+    .sec-bg p {
+        width: 100%;
+    }
+
+    .widget-sec,
+    .blog-container,
+    .recipes-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .category-sec {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .elementor {
+        height: auto;
+        grid-template-columns: 1fr;
+    }
+
+    .sec-bg {
+        height: auto;
+        min-height: 60vh;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .land-hero-sec {
+        min-height: 88vh;
+        padding: 24px 16px;
+    }
+
+    .land-hero-sec h3 {
+        width: 100%;
+        font-size: 42px;
+        line-height: 1.15;
+    }
+
+    .land-hero-sec p {
+        width: 100%;
+        font-size: 18px;
+        line-height: 1.6;
+    }
+
+    .widget-sec,
+    .recipes-container,
+    .blog-container {
+        grid-template-columns: 1fr;
+        padding: 16px;
+    }
+
+    .widget-card {
+        justify-content: flex-start;
+    }
+
+    .category-sec {
+        grid-template-columns: repeat(2, 1fr);
+        padding: 16px;
+        gap: 16px;
+    }
+
+    .elementor,
+    .recipes-section,
+    .blog-section,
+    .tags-sec {
+        padding: 16px;
+    }
+
+    .elementor-card-1,
+    .elementor-card-2 {
+        min-height: 320px;
+        padding: 24px 18px;
+    }
+
+    .elementor-card-1 h3,
+    .elementor-card-2 h3,
+    .sec-bg h3 {
+        width: 100%;
+        font-size: 34px;
+    }
+
+    .recipes-btn {
+        flex-wrap: wrap;
+        margin: 24px 0;
+    }
+
+    .recipes-btn a {
+        min-width: 140px;
+    }
+
+    .explore-btn {
+        grid-template-columns: 1fr;
+    }
+
+    .explore-btn hr {
+        display: none;
+    }
+
+    .sec-bg {
+        width: calc(100% - 32px);
+        min-height: 420px;
+        align-items: flex-start;
+        padding: 24px 18px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .land-hero-sec h3 {
+        font-size: 32px;
+    }
+
+    .category-sec {
+        grid-template-columns: 1fr;
+    }
+
+    .category-title {
+        font-size: 18px;
+    }
+}
+

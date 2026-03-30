@@ -1,0 +1,144 @@
+.recipe-card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  position: relative;
+  margin-top: 10%;
+}
+
+.card-img {
+  width: 100%;
+  height: 350px;
+  position: relative;
+}
+
+.card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  border-radius: 10px;
+}
+
+.card-img p {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 2;
+  min-width: 76px;
+  text-align: center;
+  padding: 6px 10px;
+  background-color: #ffffff;
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.rating-icons {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 2;
+}
+
+.rating-icons span {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background-color: #ffffff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.category {
+  font-size: 15px;
+  color: #ebb22f;
+  margin-top: 14px;
+}
+
+.recipe-card a {
+  text-decoration: none;
+}
+
+.recipe-title {
+  font-size: 22px;
+  color: #000000;
+  margin-top: 8px;
+  line-height: 1.25;
+}
+
+.recipe-title:hover {
+  color: #ebb22f;
+}
+
+.info {
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.info li {
+  list-style-type: none;
+  min-width: 0;
+}
+
+.info a {
+  min-height: 56px;
+  color: gray;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.info a:hover {
+  color: #ebb22f;
+}
+
+.time-icon,
+.cuisine,
+.difficulty-icon,
+.servings-icon {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+}
+
+.cuisine img {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: center;
+  flex-shrink: 0;
+}
+
+@media (max-width: 1024px) {
+  .info {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .card-img {
+    height: 280px;
+  }
+
+  .info {
+    grid-template-columns: 1fr;
+  }
+}

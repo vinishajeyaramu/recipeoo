@@ -1,0 +1,16 @@
+.recipe-table td {
+  white-space: normal;
+  word-break: normal;
+}
+
+.recipe-table img,
+.recipe-table video {
+  border-radius: 10px;
+  object-fit: cover;
+}
+
+.recipe-table th:last-child,
+.recipe-table td:last-child {
+  min-width: 140px;
+  white-space: nowrap;
+}

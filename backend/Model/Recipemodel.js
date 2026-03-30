@@ -1,0 +1,28 @@
+const mongoose = require('mongoose');
+const RecipeSchema = new mongoose.Schema({
+  title: String,
+  category: String,
+  image: String,
+  images: [String],
+  video: String,
+  time: String,
+  cuisine: String,
+  difficulty: String,
+  rating: String,
+  serves: String,
+  ingredients: String,
+  instructions: String,
+  description: String,
+  description2: String,
+  author: String,
+  authorImage: String,
+  tags: [String],
+  videoUrl: String,
+  // instructionsImage1: String,
+  // instructionsImage2: String,
+  // instructionsImage3: String,
+  // instructionsImage4: String,
+  // instructionsImage5: String,
+  type: String,
+});
+module.exports = mongoose.model('Recipe', RecipeSchema);

@@ -1,0 +1,35 @@
+.page-card{
+    width: 100%;
+    padding: 20px;
+    height: 25vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border: 2px solid gray;
+    border-radius: 10px;
+    gap: 10px;
+    text-decoration: none;
+    color: #000000;
+}
+.page-card:hover{
+    background-color: rgba(128, 128, 128, 0.151);
+}
+.card-icon{
+    display: flex;
+    align-items: center;
+    font-size: 35px;
+    margin-top: 10%;
+}
+.card-title{
+    font-size: 20px;
+}
+.card-count{
+    font-size: 15px;
+    color: gray;
+}
+.card-image{
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+}

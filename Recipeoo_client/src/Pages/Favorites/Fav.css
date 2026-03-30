@@ -1,0 +1,29 @@
+.fav-card-sec {
+  padding: 2rem;
+}
+
+.no-fav-msg {
+  text-align: center;
+  font-size: 1.2rem;
+  margin-top: 2rem;
+}
+
+.fav-card-with-remove {
+  position: relative;
+  display: inline-block;
+  margin: 1rem;
+}
+.recipes-container{
+    width: 95%;
+    margin: 0 auto;
+}
+/* .remove-btn {
+  margin-top: 0.5rem;
+  display: block;
+  padding: 0.4rem 1rem;
+  background-color: crimson;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+} */

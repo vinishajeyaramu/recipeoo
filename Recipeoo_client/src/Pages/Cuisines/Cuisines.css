@@ -1,0 +1,19 @@
+.recipe-cards-grid{
+    width: 100%;
+    height: auto;
+    padding: 50px ;
+    display: grid;
+    grid-template-columns: repeat(4,1fr);
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+}
+.tags-sec{
+    width: 100%;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background-color:#ebb32f29;
+}

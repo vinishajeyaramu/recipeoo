@@ -1,0 +1,23 @@
+.az-filter-bar{
+    width: 95%;
+    margin: 0 auto;
+    background-color: aqua;
+    /* padding: 10px; */
+    display: grid;
+    grid-template-columns: repeat(26,1fr);
+    border: 1px solid gray;
+
+}
+.az-filter-bar a{
+    text-decoration: none;
+    color: #EBB22F;
+    font-weight: 600;
+    text-align: center;
+    border: 1px solid gray;
+    padding: 10px;
+}
+.az-filter-bar a:hover{
+    background-color: #EBB22F;
+    color: white;
+    transition: 1s;
+}

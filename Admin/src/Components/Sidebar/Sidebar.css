@@ -1,0 +1,13 @@
+.sidebar-nav {
+  margin-top: 4px;
+}
+
+.sidebar-logout {
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+  padding: 0;
+  width: 100%;
+}

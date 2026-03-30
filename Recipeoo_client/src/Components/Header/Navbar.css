@@ -1,0 +1,143 @@
+nav {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+  background-color: #f6f5f4;
+  gap: 16px;
+}
+
+.nav-left {
+  width: auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 24px;
+}
+
+.nav-left li {
+  list-style-type: none;
+  color: #ebb22f;
+}
+
+.menu-icon {
+  font-size: 30px;
+  position: relative;
+}
+
+.nav-right {
+  width: auto;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 18px;
+}
+
+.nav-right li {
+  list-style-type: none;
+  color: #ebb22f;
+  font-size: 30px;
+}
+
+.nav-right a {
+  text-decoration: none;
+  color: #ebb22f;
+  font-size: 30px;
+}
+
+.menu-list li {
+  list-style-type: none;
+}
+
+.menu-list a {
+  font-size: 30px;
+  color: #f6f5f4;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.menu-list a:hover {
+  border-bottom: 3px solid #ebb22f;
+}
+
+.menu-list {
+  position: absolute;
+  width: min(320px, 88vw);
+  min-height: 70vh;
+  z-index: 9999;
+  top: 80px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  background-color: #ebb22f;
+  border-radius: 16px;
+  padding: 24px;
+}
+
+.logo img {
+  width: clamp(120px, 18vw, 220px);
+}
+
+@media screen and (max-width: 768px) {
+  nav {
+    padding: 16px;
+  }
+
+  .nav-left {
+    gap: 16px;
+  }
+
+  .menu-icon,
+  .nav-right li,
+  .nav-right a {
+    font-size: 22px;
+  }
+
+  .menu-list a {
+    font-size: 20px;
+  }
+
+  .logo img {
+    width: 120px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  nav {
+    padding: 14px 12px;
+  }
+
+  .nav-left {
+    gap: 12px;
+  }
+
+  .menu-icon,
+  .nav-right li,
+  .nav-right a {
+    font-size: 18px;
+  }
+
+  .nav-right {
+    gap: 12px;
+  }
+
+  .menu-list {
+    left: 12px;
+    top: 70px;
+    width: calc(100vw - 24px);
+  }
+
+  .menu-list a {
+    font-size: 18px;
+  }
+
+  .logo img {
+    width: 98px;
+  }
+}

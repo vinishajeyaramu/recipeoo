@@ -1,0 +1,149 @@
+footer {
+  width: 100%;
+  min-height: 50vh;
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background-color: #f6f5f4;
+}
+
+.footer-top-div {
+  width: min(1100px, 100%);
+  min-height: 18vh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 25px;
+  border-bottom: 1px solid gray;
+  padding-bottom: 18px;
+}
+
+.footer-top-left {
+  width: auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+}
+
+.footer-top-left li,
+.footer-top-right li {
+  list-style-type: none;
+}
+
+.footer-top-left a {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(128, 128, 128, 0.708);
+  font-size: 22px;
+  color: #000000;
+}
+
+.footer-top-left a:hover {
+  color: #ebb22f;
+  background-color: #ebb32f25;
+}
+
+.footer-top-right {
+  width: 100%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.footer-top-right a {
+  font-size: 20px;
+  text-decoration: none;
+  color: #000000;
+}
+
+.footer-top-right a:hover {
+  color: #ebb22f;
+}
+
+.footer-bottom-div {
+  width: min(1100px, 100%);
+  margin: 18px auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.footer-bottom-div span {
+  color: gray;
+  font-size: 14px;
+}
+
+.footer-bottom-div p {
+  color: #000000;
+  font-size: 12px;
+  margin-top: 10px;
+}
+
+.f-logo {
+  width: clamp(110px, 16vw, 180px);
+}
+
+.f-logo img {
+  width: 100%;
+  height: auto;
+}
+
+@media screen and (max-width: 768px) {
+  footer {
+    min-height: auto;
+  }
+
+  .footer-top-div {
+    flex-direction: column;
+    gap: 18px;
+  }
+
+  .footer-top-left {
+    width: 100%;
+    flex-wrap: wrap;
+  }
+
+  .footer-top-right {
+    justify-content: center;
+  }
+
+  .footer-top-right a {
+    font-size: 15px;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  footer {
+    padding: 20px 14px;
+  }
+
+  .footer-top-left a {
+    width: 34px;
+    height: 34px;
+    font-size: 16px;
+  }
+
+  .footer-top-right a {
+    font-size: 13px;
+  }
+
+  .footer-bottom-div span,
+  .footer-bottom-div p {
+    font-size: 11px;
+  }
+}
