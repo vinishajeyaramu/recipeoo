@@ -1,9 +1,5 @@
 import React from 'react'
 import './Footer.css'
-import { IoLogoInstagram } from "react-icons/io";
-import { RiTwitterXFill } from "react-icons/ri";
-import { FaYoutube } from "react-icons/fa6";
-import { FaPinterestP } from "react-icons/fa";
 import logo from '../../Assets/Images/Recipeoo.png'
 import { Link } from 'react-router-dom';
 const Footer = () => {

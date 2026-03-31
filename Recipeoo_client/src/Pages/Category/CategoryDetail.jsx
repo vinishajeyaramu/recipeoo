@@ -89,21 +89,21 @@ const CategoryDetail = () => {
 
   const exactCategory = categoryMap[categoryName.toLowerCase()];
   
-const mainDishCategories = ['Meat', 'Side Dishes', 'Pasta', 'BBQ & Grilling'];
-const landingPageCategories = ['Pasta', 'Salads', 'Meat', 'Breakfasts', 'Desserts', 'Side Dishes', 'BBQ & Grilling', 'Gluten-Free', 'Drinks', 'Vegetarian'];
-const filtered = useMemo(() => {
-  if (categoryName.toLowerCase() === 'main-dishes') {
-    return recipecards.filter(r => mainDishCategories.includes(r.category));
-  }
-  if (categoryName.toLowerCase() === 'other-recipes') {
-    const pool = recipecards.filter(r => !landingPageCategories.includes(r.category));
-    const randomCount = Math.floor(Math.random() * (Math.min(64, pool.length) - 13 + 1)) + 13;
-    return [...pool].sort(() => Math.random() - 0.5).slice(0, randomCount);
-  }
-  return recipecards.filter(
-    (card) => card.category && card.category.toLowerCase() === (exactCategory || categoryName).toLowerCase()
-  );
-}, [categoryName]);
+  const mainDishCategories = ['Meat', 'Side Dishes', 'Pasta', 'BBQ & Grilling'];
+  const landingPageCategories = ['Pasta', 'Salads', 'Meat', 'Breakfasts', 'Desserts', 'Side Dishes', 'BBQ & Grilling', 'Gluten-Free', 'Drinks', 'Vegetarian'];
+  const filtered = useMemo(() => {
+    if (categoryName.toLowerCase() === 'main-dishes') {
+      return recipecards.filter((r) => mainDishCategories.includes(r.category));
+    }
+    if (categoryName.toLowerCase() === 'other-recipes') {
+      const pool = recipecards.filter((r) => !landingPageCategories.includes(r.category));
+      const randomCount = Math.floor(Math.random() * (Math.min(64, pool.length) - 13 + 1)) + 13;
+      return [...pool].sort(() => Math.random() - 0.5).slice(0, randomCount);
+    }
+    return recipecards.filter(
+      (card) => card.category && card.category.toLowerCase() === (exactCategory || categoryName).toLowerCase()
+    );
+  }, [categoryName, exactCategory, landingPageCategories, mainDishCategories]);
 
   useEffect(() => {
     setCurrentPage(1);

@@ -1,15 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { recipecards } from '../All Recipies/AllRecipe';
 import RecipeCard from '../../Resuable Components/Recipercards/Recipecards';
-import Pageheader from '../../Resuable Components/Page Header/Pageheader';
 import PopularTags from '../../Resuable Components/Populartags/Populatags';
 import './Overallfilter.css';
-
-const pageProps = {
-  title: "Recipe Filter",
-  description: "Filter recipes by category, cuisine, servings, difficulty and cooking time to find exactly what you need!",
-  subtitle: "Find Your Perfect Recipe",
-};
 
 const tagData = [
   { name: 'COMFORT FOOD', link: '/tags/comfort-food' },
