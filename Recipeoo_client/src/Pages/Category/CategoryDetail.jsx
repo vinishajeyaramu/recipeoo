@@ -89,9 +89,10 @@ const CategoryDetail = () => {
 
   const exactCategory = categoryMap[categoryName.toLowerCase()];
   
-  const mainDishCategories = ['Meat', 'Side Dishes', 'Pasta', 'BBQ & Grilling'];
-  const landingPageCategories = ['Pasta', 'Salads', 'Meat', 'Breakfasts', 'Desserts', 'Side Dishes', 'BBQ & Grilling', 'Gluten-Free', 'Drinks', 'Vegetarian'];
   const filtered = useMemo(() => {
+    const mainDishCategories = ['Meat', 'Side Dishes', 'Pasta', 'BBQ & Grilling'];
+    const landingPageCategories = ['Pasta', 'Salads', 'Meat', 'Breakfasts', 'Desserts', 'Side Dishes', 'BBQ & Grilling', 'Gluten-Free', 'Drinks', 'Vegetarian'];
+
     if (categoryName.toLowerCase() === 'main-dishes') {
       return recipecards.filter((r) => mainDishCategories.includes(r.category));
     }
@@ -103,7 +104,7 @@ const CategoryDetail = () => {
     return recipecards.filter(
       (card) => card.category && card.category.toLowerCase() === (exactCategory || categoryName).toLowerCase()
     );
-  }, [categoryName, exactCategory, landingPageCategories, mainDishCategories]);
+  }, [categoryName, exactCategory]);
 
   useEffect(() => {
     setCurrentPage(1);
