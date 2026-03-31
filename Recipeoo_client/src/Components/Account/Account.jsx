@@ -503,7 +503,8 @@ const handleResetPassword = (e) => {
         <div className="overlay">
           <div className="overlay-panel overlay-left">
             <h2>Welcome Back!</h2>
-            <p>To keep connected with us please login with your personal info</p>
+            <p>To keep connected with us please login with your personal info
+            <small>For Admin Login: adminrecipeoo@gmail.com,admin@recipeoo</small></p>
             <button className="ghost" onClick={() => setIsSignup(false)} type="button">
               Sign In
             </button>
