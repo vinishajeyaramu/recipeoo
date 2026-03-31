@@ -2,11 +2,7 @@ import React from 'react'
 import { NavLink } from 'react-router-dom'
 import './Sidebar.css'
 import logo from '../../Assets/Images/Recipeoo.png'
-
-const getClientAppUrl = () => {
-  const { protocol, hostname } = window.location
-  return `${protocol}//${hostname}:3001/home`
-}
+import { getClientAppUrl } from '../../config/appUrls'
 
 const Sidebar = () => {
   const handleLogout = () => {
@@ -14,14 +10,14 @@ const Sidebar = () => {
     localStorage.removeItem('role')
     localStorage.removeItem('userInfo')
     localStorage.removeItem('isLoggedIn')
-    window.location.href = getClientAppUrl()
+    window.location.href = getClientAppUrl('/account')
   }
 
   return (
     <>
       <div className='sidebar'>
         <div className='logo'>
-          <a href={getClientAppUrl()}>
+          <a href={getClientAppUrl('/')}>
             <img src={logo} alt="logo" />
           </a>
         </div>
