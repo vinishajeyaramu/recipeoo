@@ -176,6 +176,19 @@ button:hover, .ghost:hover {
   margin-top: -4px;
   text-align: left;
 }
+
+.admin-login-hint {
+  color: #fff;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  text-align: left;
+  background: rgba(0, 0, 0, 0.35);
+  border-left: 3px solid #ebb22f;
+  padding: 10px 12px;
+  border-radius: 6px;
+  margin-top: -4px;
+}
+
 .account-wrapper {
     width: 90%;
     margin: 0 auto;

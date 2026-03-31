@@ -493,6 +493,9 @@ const handleResetPassword = (e) => {
               onChange={e => setLoginPassword(e.target.value)}
             />
           </div>
+          <div className="admin-login-hint">
+            Admin login: adminrecipeoo@gmail.com / admin@recipeoo
+          </div>
           {loginError && <div className="error">{loginError}</div>}
           <p className="forgot-link" onClick={() => setShowForgotPopup(true)} style={{cursor:'pointer', color:'#007bff', marginTop:'8px'}}>Forgot password?</p>
           <button type="submit">Sign In</button>
@@ -503,8 +506,7 @@ const handleResetPassword = (e) => {
         <div className="overlay">
           <div className="overlay-panel overlay-left">
             <h2>Welcome Back!</h2>
-            <p>To keep connected with us please login with your personal info
-            <small>For Admin Login: adminrecipeoo@gmail.com,admin@recipeoo</small></p>
+            <p>To keep connected with us please login with your personal info</p>
             <button className="ghost" onClick={() => setIsSignup(false)} type="button">
               Sign In
             </button>
