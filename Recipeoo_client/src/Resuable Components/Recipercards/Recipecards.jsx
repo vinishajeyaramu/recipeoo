@@ -3,7 +3,7 @@ import './Recipecards.css';
 import { FaHeart, FaRegBookmark, FaClock } from 'react-icons/fa';
 import { LuChefHat } from "react-icons/lu";
 import { GiForkKnifeSpoon } from "react-icons/gi";
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { getAssetUrl } from '../../config/api';
 
 // Utility function to convert string into URL-friendly slug

@@ -169,11 +169,11 @@ const RecipeDetails = () => {
               <h3>{recipe.title || 'Recipe Details'}</h3>
               <div className="details-icons">
                 <li>
-                  <a className="time-icon"><FaClock /> {recipe.time || '-'}</a>
+                  <span className="time-icon"><FaClock /> {recipe.time || '-'}</span>
                   <p>Cooking Time</p>
                 </li>
                 <li>
-                  <a className="cuisine">
+                  <span className="cuisine">
                     {recipe.flag ? (
                       <img
                         src={recipe.flag}
@@ -182,15 +182,15 @@ const RecipeDetails = () => {
                       />
                     ) : null}
                     {recipe.cuisine || '-'}
-                  </a>
+                  </span>
                   <p>Cuisine</p>
                 </li>
                 <li>
-                  <a className="difficulty-icon"><LuChefHat /> {recipe.difficulty || '-'}</a>
+                  <span className="difficulty-icon"><LuChefHat /> {recipe.difficulty || '-'}</span>
                   <p>Degree of Difficulty</p>
                 </li>
                 <li>
-                  <a className="servings-icon"><GiForkKnifeSpoon /> {recipe.servings || '-'}</a>
+                  <span className="servings-icon"><GiForkKnifeSpoon /> {recipe.servings || '-'}</span>
                   <p>Serving</p>
                 </li>
               </div>

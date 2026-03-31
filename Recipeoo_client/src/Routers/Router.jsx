@@ -25,16 +25,8 @@ import RecipesByLetter from '../Pages/A-z/RecipesByLetter';
 import RecipeDetails from '../Pages/Recipe Details/RecipeDetails';
 import TagsPage from '../Pages/Tags/TagsPage';
 import Overallfilter from '../Pages/Overall FIlter/Overallfilter';
-import { getAdminAppUrl } from '../config/api';
 
 const Router = () => {
-  const AdminRoute = ({ children }) => {
-    const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-    return userInfo?.role === 'admin' 
-      ? (window.location.href = getAdminAppUrl())
-      : <Navigate to="/account" />;
-  };
-
   const UserRoute = ({ children }) => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
     return userInfo ? children : <Navigate to="/" />;
