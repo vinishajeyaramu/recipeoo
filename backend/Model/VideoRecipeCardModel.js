@@ -5,6 +5,7 @@ const videoRecipeModalSchema = new mongoose.Schema({
     category: String,
     time: String,
     cuisine: String,
+    cuisineImage: String,
     serves: String,
     rating: Number,
     difficulty: String,

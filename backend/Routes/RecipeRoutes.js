@@ -21,19 +21,27 @@ router.post(
   '/',
   upload.fields([
     { name: 'image', maxCount: 1 },
-    { name: 'images', maxCount: 6 },
+    { name: 'cuisineImage', maxCount: 1 },
+    { name: 'images', maxCount: 30 },
+    { name: 'authorImageFile', maxCount: 1 },
     { name: 'video', maxCount: 1 }
   ]),
   async (req, res) => {
-    const { title, category, time, cuisine, difficulty, rating, serves, ingredients, instructions, description, description2, author, authorImage, videoUrl, type } = req.body;
+    const { title, category, time, cuisine, difficulty, rating, serves, ingredients, instructions, nutrients, description, description2, author, authorImage, videoUrl, recipeLink, type } = req.body;
     const image = req.files['image'] && req.files['image'][0]
       ? `/uploads/${req.files['image'][0].filename}`
       : '';
     const images = req.files['images']
       ? req.files['images'].map(file => `/uploads/${file.filename}`)
       : [];
+    const cuisineImage = req.files['cuisineImage'] && req.files['cuisineImage'][0]
+      ? `/uploads/${req.files['cuisineImage'][0].filename}`
+      : '';
     const video = req.files['video'] && req.files['video'][0]
       ? `/uploads/${req.files['video'][0].filename}`
+      : '';
+    const uploadedAuthorImage = req.files['authorImageFile'] && req.files['authorImageFile'][0]
+      ? `/uploads/${req.files['authorImageFile'][0].filename}`
       : '';
     const newRecipe = new Recipe({
       title,
@@ -43,17 +51,20 @@ router.post(
       video,
       time,
       cuisine,
+      cuisineImage,
       difficulty,
       rating,
       serves,
       ingredients,
       instructions,
+      nutrients,
       description,
       description2,
       author,
-      authorImage,
+      authorImage: uploadedAuthorImage || authorImage,
       tags: toList(req.body.tags),
       videoUrl,
+      recipeLink,
       type,
     });
     await newRecipe.save();
@@ -64,18 +75,26 @@ router.post(
 // Update recipe
 router.put('/:id', upload.fields([
   { name: 'image', maxCount: 1 },
-  { name: 'images', maxCount: 6 },
+  { name: 'cuisineImage', maxCount: 1 },
+  { name: 'images', maxCount: 30 },
+  { name: 'authorImageFile', maxCount: 1 },
   { name: 'video', maxCount: 1 }
 ]), async (req, res) => {
   const updateData = { ...req.body };
   if (req.files['image']) {
     updateData.image = `/uploads/${req.files['image'][0].filename}`;
   }
+  if (req.files['cuisineImage']) {
+    updateData.cuisineImage = `/uploads/${req.files['cuisineImage'][0].filename}`;
+  }
   if (req.files['images']) {
     updateData.images = req.files['images'].map((file) => `/uploads/${file.filename}`);
   }
   if (req.files['video']) {
     updateData.video = `/uploads/${req.files['video'][0].filename}`;
+  }
+  if (req.files['authorImageFile']) {
+    updateData.authorImage = `/uploads/${req.files['authorImageFile'][0].filename}`;
   }
   if ('tags' in updateData) updateData.tags = toList(updateData.tags);
   const recipe = await Recipe.findByIdAndUpdate(req.params.id, updateData, { new: true });

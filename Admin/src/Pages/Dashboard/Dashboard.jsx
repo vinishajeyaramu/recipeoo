@@ -9,6 +9,7 @@ const metricPalette = [
   { key: 'users', label: 'Users', color: '#D96C06' },
   { key: 'videoRecipes', label: 'Video Recipes', color: '#6B5B95' },
   { key: 'categories', label: 'Categories', color: '#008B8B' },
+  { key: 'downloads', label: 'Downloads', color: '#C84630' },
 ];
 
 const endpointGroups = {
@@ -17,6 +18,7 @@ const endpointGroups = {
   users: ['users'],
   videoRecipes: ['video-cards', 'video-recipes'],
   categories: ['categories'],
+  downloads: ['downloads'],
 };
 
 const formatLabel = (value) =>
@@ -56,6 +58,7 @@ const Dashboard = () => {
     users: [],
     videoRecipes: [],
     categories: [],
+    downloads: [],
   });
   const [loading, setLoading] = useState(true);
   const [lastUpdated, setLastUpdated] = useState(null);
@@ -149,7 +152,7 @@ const Dashboard = () => {
       <div className="dashboard-header">
         <div>
           <h1>Dashboard Overview</h1>
-          <p>Track recipes, blogs, users, video recipes, and categories from one place.</p>
+          <p>Track recipes, blogs, users, video recipes, categories, and downloads from one place.</p>
         </div>
         <div className="dashboard-status">
           <span className={`status-pill ${loading ? 'loading' : 'ready'}`}>

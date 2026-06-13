@@ -8,6 +8,7 @@ const CUISINE_ENDPOINTS = [
 const Cuisine = () => {
   const [cuisines, setCuisines] = useState([]);
   const [newCuisine, setNewCuisine] = useState('');
+  const [editingCuisine, setEditingCuisine] = useState(null);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
   const [activeEndpoint, setActiveEndpoint] = useState('');
@@ -65,8 +66,10 @@ const Cuisine = () => {
     }
 
     try {
-      const response = await fetch(activeEndpoint, {
-        method: 'POST',
+      const isEditing = Boolean(editingCuisine?._id || editingCuisine?.id);
+      const cuisineId = editingCuisine?._id || editingCuisine?.id;
+      const response = await fetch(`${activeEndpoint}${isEditing ? `/${cuisineId}` : ''}`, {
+        method: isEditing ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name: newCuisine.trim() }),
       });
@@ -76,10 +79,56 @@ const Cuisine = () => {
       }
 
       const cuisine = await response.json();
-      setCuisines((current) => [...current, cuisine]);
+      setCuisines((current) =>
+        isEditing
+          ? current.map((item) => ((item._id || item.id) === (cuisine._id || cuisine.id) ? cuisine : item))
+          : [...current, cuisine]
+      );
       setNewCuisine('');
+      setEditingCuisine(null);
     } catch (submitError) {
       setError(submitError.message);
+    }
+  };
+
+  const handleEditCuisine = (cuisine) => {
+    setEditingCuisine(cuisine);
+    setNewCuisine(cuisine.name || cuisine.title || '');
+    setError('');
+    setInfo('');
+  };
+
+  const handleCancelEdit = () => {
+    setEditingCuisine(null);
+    setNewCuisine('');
+    setError('');
+    setInfo('');
+  };
+
+  const handleDeleteCuisine = async (cuisine) => {
+    if (!activeEndpoint) {
+      setInfo('Cuisine endpoint is not available.');
+      return;
+    }
+
+    if (!window.confirm(`Delete "${cuisine.name || cuisine.title || 'Cuisine'}"?`)) return;
+
+    try {
+      const cuisineId = cuisine._id || cuisine.id;
+      const response = await fetch(`${activeEndpoint}/${cuisineId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete cuisine');
+      }
+
+      setCuisines((current) => current.filter((item) => (item._id || item.id) !== cuisineId));
+      if ((editingCuisine?._id || editingCuisine?.id) === cuisineId) {
+        handleCancelEdit();
+      }
+    } catch (deleteError) {
+      setError(deleteError.message);
     }
   };
 
@@ -107,9 +156,10 @@ const Cuisine = () => {
               className="page-input"
               value={newCuisine}
               onChange={(event) => setNewCuisine(event.target.value)}
-              placeholder="Add a new cuisine"
+              placeholder={editingCuisine ? 'Edit cuisine' : 'Add a new cuisine'}
             />
-            <button type="submit">Add Cuisine</button>
+            <button type="submit">{editingCuisine ? 'Update Cuisine' : 'Add Cuisine'}</button>
+            {editingCuisine && <button type="button" onClick={handleCancelEdit}>Cancel</button>}
           </form>
           {error && <div className="page-error" style={{ marginTop: '14px' }}>{error}</div>}
           {info && <div className="page-note" style={{ marginTop: '14px' }}>{info}</div>}
@@ -121,7 +171,10 @@ const Cuisine = () => {
               cuisines.map((cuisine) => (
                 <div className="page-list-item" key={cuisine._id || cuisine.id || cuisine.name}>
                   <strong>{cuisine.name || cuisine.title || 'Cuisine'}</strong>
-                  <span className="page-badge">Active</span>
+                  <div className="table-action-group">
+                    <button className="table-action-button edit" onClick={() => handleEditCuisine(cuisine)}>Edit</button>
+                    <button className="table-action-button delete" onClick={() => handleDeleteCuisine(cuisine)}>Delete</button>
+                  </div>
                 </div>
               ))
             ) : (

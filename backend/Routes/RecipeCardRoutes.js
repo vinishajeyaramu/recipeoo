@@ -16,15 +16,22 @@ router.get('/', async (req, res) => {
   res.json(cards);
 });
 
+const cardUpload = upload.fields([
+  { name: 'image', maxCount: 1 },
+  { name: 'cuisineImage', maxCount: 1 },
+]);
+
 // Add card
-router.post('/', upload.single('image'), async (req, res) => {
+router.post('/', cardUpload, async (req, res) => {
   const { title, category, time, cuisine, difficulty, rating, serves, description, description2, author, authorImage, type } = req.body;
-  const image = req.file ? `/uploads/${req.file.filename}` : '';
+  const image = req.files?.image?.[0] ? `/uploads/${req.files.image[0].filename}` : '';
+  const cuisineImage = req.files?.cuisineImage?.[0] ? `/uploads/${req.files.cuisineImage[0].filename}` : '';
   const newCard = new Card({
     title,
     category,
     time,
     cuisine,
+    cuisineImage,
     difficulty,
     rating,
     serves,
@@ -41,9 +48,10 @@ router.post('/', upload.single('image'), async (req, res) => {
 });
 
 // Update card
-router.put('/:id', upload.single('image'), async (req, res) => {
+router.put('/:id', cardUpload, async (req, res) => {
   const updateData = { ...req.body };
-  if (req.file) updateData.image = `/uploads/${req.file.filename}`;
+  if (req.files?.image?.[0]) updateData.image = `/uploads/${req.files.image[0].filename}`;
+  if (req.files?.cuisineImage?.[0]) updateData.cuisineImage = `/uploads/${req.files.cuisineImage[0].filename}`;
   if ('tags' in updateData) updateData.tags = toList(updateData.tags);
   const card = await Card.findByIdAndUpdate(req.params.id, updateData, { new: true });
   res.json(card);

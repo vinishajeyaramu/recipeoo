@@ -5,11 +5,16 @@ const API_BASE = 'http://localhost:5000/api/blogs';
 
 const emptyCardForm = {
   title: '',
+  category: '',
+  cardImage: null,
   author: '',
   publishedAt: '',
   comments: '',
   readTime: '',
 };
+
+const emptyOpeningSection = { heading: '', text: '' };
+const emptyListSection = { heading: '', items: [''] };
 
 const emptyBlogForm = {
   title: '',
@@ -20,13 +25,9 @@ const emptyBlogForm = {
   comments: '',
   readTime: '',
   excerpt: '',
-  intro: '',
-  sectionOneTitle: '',
-  sectionOneBody: '',
-  sectionTwoTitle: '',
-  sectionTwoBody: '',
-  tipsTitle: '',
-  tipsList: '',
+  openingSections: [{ ...emptyOpeningSection }],
+  numberedSections: [{ ...emptyListSection }],
+  pointedSections: [{ ...emptyListSection }],
   conclusion: '',
   galleryImages: [],
 };
@@ -36,6 +37,36 @@ const formatDate = (value) => {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleDateString([], { day: '2-digit', month: 'short', year: 'numeric' });
+};
+
+const normalizeOpeningSections = (item) => {
+  if (Array.isArray(item.openingSections) && item.openingSections.length) {
+    return item.openingSections.map((section) => ({
+      heading: section.heading || '',
+      text: section.text || '',
+    }));
+  }
+
+  if (item.intro) {
+    return [{ heading: '', text: item.intro }];
+  }
+
+  return [{ ...emptyOpeningSection }];
+};
+
+const normalizeListSections = (sections, legacyTitle = '', legacyItems = []) => {
+  if (Array.isArray(sections) && sections.length) {
+    return sections.map((section) => ({
+      heading: section.heading || '',
+      items: Array.isArray(section.items) && section.items.length ? section.items : [''],
+    }));
+  }
+
+  if (legacyTitle || legacyItems.length) {
+    return [{ heading: legacyTitle || '', items: legacyItems.length ? legacyItems : [''] }];
+  }
+
+  return [{ ...emptyListSection }];
 };
 
 const Blog = () => {
@@ -70,8 +101,8 @@ const Blog = () => {
   };
 
   const handleCardChange = (event) => {
-    const { name, value } = event.target;
-    setCardForm((current) => ({ ...current, [name]: value }));
+    const { name, value, files, type } = event.target;
+    setCardForm((current) => ({ ...current, [name]: type === 'file' ? files[0] : value }));
   };
 
   const handleBlogChange = (event) => {
@@ -79,6 +110,100 @@ const Blog = () => {
     setBlogForm((current) => ({
       ...current,
       [name]: type === 'file' ? (multiple ? Array.from(files) : files[0]) : value,
+    }));
+  };
+
+  const updateOpeningSection = (index, field, value) => {
+    setBlogForm((current) => ({
+      ...current,
+      openingSections: current.openingSections.map((section, sectionIndex) =>
+        sectionIndex === index ? { ...section, [field]: value } : section
+      ),
+    }));
+  };
+
+  const addOpeningSection = () => {
+    setBlogForm((current) => ({
+      ...current,
+      openingSections: [...current.openingSections, { ...emptyOpeningSection }],
+    }));
+  };
+
+  const removeOpeningSection = (index) => {
+    setBlogForm((current) => ({
+      ...current,
+      openingSections:
+        current.openingSections.length > 1
+          ? current.openingSections.filter((_, sectionIndex) => sectionIndex !== index)
+          : current.openingSections,
+    }));
+  };
+
+  const updateListSectionHeading = (sectionField, sectionIndex, value) => {
+    setBlogForm((current) => ({
+      ...current,
+      [sectionField]: current[sectionField].map((section, index) =>
+        index === sectionIndex ? { ...section, heading: value } : section
+      ),
+    }));
+  };
+
+  const updateListSectionItem = (sectionField, sectionIndex, itemIndex, value) => {
+    setBlogForm((current) => ({
+      ...current,
+      [sectionField]: current[sectionField].map((section, index) =>
+        index === sectionIndex
+          ? {
+              ...section,
+              items: section.items.map((item, currentItemIndex) =>
+                currentItemIndex === itemIndex ? value : item
+              ),
+            }
+          : section
+      ),
+    }));
+  };
+
+  const addListSection = (sectionField) => {
+    setBlogForm((current) => ({
+      ...current,
+      [sectionField]: [...current[sectionField], { ...emptyListSection }],
+    }));
+  };
+
+  const removeListSection = (sectionField, sectionIndex) => {
+    setBlogForm((current) => ({
+      ...current,
+      [sectionField]:
+        current[sectionField].length > 1
+          ? current[sectionField].filter((_, index) => index !== sectionIndex)
+          : current[sectionField],
+    }));
+  };
+
+  const addListItem = (sectionField, sectionIndex) => {
+    setBlogForm((current) => ({
+      ...current,
+      [sectionField]: current[sectionField].map((section, index) =>
+        index === sectionIndex ? { ...section, items: [...section.items, ''] } : section
+      ),
+    }));
+  };
+
+  const removeListItem = (sectionField, sectionIndex, itemIndex) => {
+    setBlogForm((current) => ({
+      ...current,
+      [sectionField]: current[sectionField].map((section, index) =>
+        index === sectionIndex
+          ? {
+              ...section,
+              items:
+                section.items.length > 1
+                  ? section.items.filter((_, currentItemIndex) => currentItemIndex !== itemIndex)
+                  : section.items,
+            }
+          : section
+      ),
     }));
   };
 
@@ -100,6 +225,8 @@ const Blog = () => {
     if (item.type === 'Card') {
       setCardForm({
         title: item.title || '',
+        category: item.category || '',
+        cardImage: null,
         author: item.author || '',
         publishedAt: item.publishedAt || '',
         comments: item.comments || '',
@@ -118,13 +245,17 @@ const Blog = () => {
       comments: item.comments || '',
       readTime: item.readTime || '',
       excerpt: item.excerpt || '',
-      intro: item.intro || '',
-      sectionOneTitle: item.sectionOneTitle || '',
-      sectionOneBody: item.sectionOneBody || '',
-      sectionTwoTitle: item.sectionTwoTitle || '',
-      sectionTwoBody: item.sectionTwoBody || '',
-      tipsTitle: item.tipsTitle || '',
-      tipsList: Array.isArray(item.tipsList) ? item.tipsList.join('\n') : '',
+      openingSections: normalizeOpeningSections(item),
+      numberedSections: normalizeListSections(
+        item.numberedSections,
+        item.sectionOneTitle,
+        item.sectionOneBody ? [item.sectionOneBody] : []
+      ),
+      pointedSections: normalizeListSections(
+        item.pointedSections,
+        item.tipsTitle,
+        Array.isArray(item.tipsList) ? item.tipsList : []
+      ),
       conclusion: item.conclusion || '',
       galleryImages: [],
     });
@@ -139,20 +270,22 @@ const Blog = () => {
   };
 
   const handleCardSubmit = async () => {
-    if (!cardForm.title || !cardForm.author || !cardForm.publishedAt || !cardForm.comments || !cardForm.readTime) {
+    if (!cardForm.title || !cardForm.category || !cardForm.author || !cardForm.publishedAt || !cardForm.comments || !cardForm.readTime) {
       alert('Please fill all blog card fields.');
       return;
     }
 
-    const payload = {
-      type: 'Card',
-      ...cardForm,
-    };
+    const formData = new FormData();
+    formData.append('type', 'Card');
+    Object.entries(cardForm).forEach(([key, value]) => {
+      if (key === 'cardImage') return;
+      formData.append(key, value);
+    });
+    if (cardForm.cardImage) formData.append('cardImage', cardForm.cardImage);
 
     const response = await fetch(editingItem ? `${API_BASE}/${editingItem._id}` : API_BASE, {
       method: editingItem ? 'PUT' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
+      body: formData,
     });
 
     const saved = await response.json();
@@ -171,12 +304,6 @@ const Blog = () => {
       'comments',
       'readTime',
       'excerpt',
-      'intro',
-      'sectionOneTitle',
-      'sectionOneBody',
-      'sectionTwoTitle',
-      'sectionTwoBody',
-      'tipsTitle',
       'conclusion',
     ];
 
@@ -185,12 +312,42 @@ const Blog = () => {
       return;
     }
 
+    const openingSections = blogForm.openingSections.filter((section) => section.heading || section.text);
+    const numberedSections = blogForm.numberedSections
+      .map((section) => ({
+        heading: section.heading,
+        items: section.items.filter(Boolean),
+      }))
+      .filter((section) => section.heading || section.items.length);
+    const pointedSections = blogForm.pointedSections
+      .map((section) => ({
+        heading: section.heading,
+        items: section.items.filter(Boolean),
+      }))
+      .filter((section) => section.heading || section.items.length);
+
+    if (!openingSections.length) {
+      alert('Please add at least one opening paragraph.');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('type', 'Blog');
     Object.entries(blogForm).forEach(([key, value]) => {
-      if (key === 'heroImage' || key === 'galleryImages') return;
+      if (
+        key === 'heroImage' ||
+        key === 'galleryImages' ||
+        key === 'openingSections' ||
+        key === 'numberedSections' ||
+        key === 'pointedSections'
+      ) {
+        return;
+      }
       formData.append(key, value);
     });
+    formData.append('openingSections', JSON.stringify(openingSections));
+    formData.append('numberedSections', JSON.stringify(numberedSections));
+    formData.append('pointedSections', JSON.stringify(pointedSections));
     if (blogForm.heroImage) formData.append('heroImage', blogForm.heroImage);
     blogForm.galleryImages.forEach((file) => formData.append('galleryImages', file));
 
@@ -217,6 +374,46 @@ const Blog = () => {
   );
 
   const articleCount = data.filter((item) => item.type === 'Blog').length;
+
+  const renderListSections = (sectionField, title, itemPlaceholder) => (
+    <div className="dynamic-form-section blog-dynamic-section">
+      <div className="dynamic-form-heading">
+        <h3>{title}</h3>
+        <button type="button" onClick={() => addListSection(sectionField)}>+</button>
+      </div>
+      {blogForm[sectionField].map((section, sectionIndex) => (
+        <div className="blog-list-section" key={`${sectionField}-${sectionIndex}`}>
+          <div className="dynamic-form-row blog-section-heading-row">
+            <input
+              placeholder="Heading"
+              value={section.heading}
+              onChange={(event) => updateListSectionHeading(sectionField, sectionIndex, event.target.value)}
+            />
+            <button type="button" onClick={() => removeListSection(sectionField, sectionIndex)}>-</button>
+          </div>
+          {section.items.map((item, itemIndex) => (
+            <div className="dynamic-form-row blog-list-item-row" key={`${sectionField}-${sectionIndex}-${itemIndex}`}>
+              <input
+                placeholder={itemPlaceholder}
+                value={item}
+                onChange={(event) =>
+                  updateListSectionItem(sectionField, sectionIndex, itemIndex, event.target.value)
+                }
+              />
+              <button type="button" onClick={() => removeListItem(sectionField, sectionIndex, itemIndex)}>-</button>
+            </div>
+          ))}
+          <button
+            className="inline-add-button"
+            type="button"
+            onClick={() => addListItem(sectionField, sectionIndex)}
+          >
+            + Add item
+          </button>
+        </div>
+      ))}
+    </div>
+  );
 
   return (
     <>
@@ -262,6 +459,7 @@ const Blog = () => {
                   <th>Author</th>
                   <th>Published</th>
                   <th>Category</th>
+                  <th>Image</th>
                   <th>Comments</th>
                   <th>Read Time</th>
                   <th>Excerpt</th>
@@ -277,6 +475,18 @@ const Blog = () => {
                     <td>{item.author || '-'}</td>
                     <td>{formatDate(item.publishedAt)}</td>
                     <td>{item.category || '-'}</td>
+                    <td>
+                      {item.cardImage || item.heroImage ? (
+                        <img
+                          src={`http://localhost:5000${item.cardImage || item.heroImage}`}
+                          alt={item.title}
+                          width="56"
+                          height="56"
+                        />
+                      ) : (
+                        '-'
+                      )}
+                    </td>
                     <td>{item.comments || '-'}</td>
                     <td>{item.readTime || '-'}</td>
                     <td>{item.excerpt || '-'}</td>
@@ -290,7 +500,7 @@ const Blog = () => {
                 ))}
                 {!filteredData.length && (
                   <tr>
-                    <td colSpan="10" className="table-empty">No blog data available yet.</td>
+                    <td colSpan="11" className="table-empty">No blog data available yet.</td>
                   </tr>
                 )}
               </tbody>
@@ -304,6 +514,9 @@ const Blog = () => {
           <div className="card-modal">
             <h2>{editingItem ? 'Edit Blog Card' : 'Add New Blog Card'}</h2>
             <input name="title" placeholder="Title" value={cardForm.title} onChange={handleCardChange} />
+            <input name="category" placeholder="Blog Category" value={cardForm.category} onChange={handleCardChange} />
+            <label className="field-label">Blog Card Image</label>
+            <input name="cardImage" type="file" onChange={handleCardChange} />
             <input name="author" placeholder="Author" value={cardForm.author} onChange={handleCardChange} />
             <input name="publishedAt" type="date" value={cardForm.publishedAt} onChange={handleCardChange} />
             <input name="comments" placeholder="Comment count" value={cardForm.comments} onChange={handleCardChange} />
@@ -330,13 +543,33 @@ const Blog = () => {
             </div>
             <input name="heroImage" type="file" onChange={handleBlogChange} />
             <textarea className="text-box" name="excerpt" placeholder="Short hero excerpt" value={blogForm.excerpt} onChange={handleBlogChange} />
-            <textarea className="text-box" name="intro" placeholder="Opening paragraph" value={blogForm.intro} onChange={handleBlogChange} />
-            <input name="sectionOneTitle" placeholder="Section one title" value={blogForm.sectionOneTitle} onChange={handleBlogChange} />
-            <textarea className="text-box" name="sectionOneBody" placeholder="Section one content" value={blogForm.sectionOneBody} onChange={handleBlogChange} />
-            <input name="sectionTwoTitle" placeholder="Section two title" value={blogForm.sectionTwoTitle} onChange={handleBlogChange} />
-            <textarea className="text-box" name="sectionTwoBody" placeholder="Section two content" value={blogForm.sectionTwoBody} onChange={handleBlogChange} />
-            <input name="tipsTitle" placeholder="Tips block title" value={blogForm.tipsTitle} onChange={handleBlogChange} />
-            <textarea className="text-box" name="tipsList" placeholder="Tips list, one tip per line" value={blogForm.tipsList} onChange={handleBlogChange} />
+
+            <div className="dynamic-form-section blog-dynamic-section">
+              <div className="dynamic-form-heading">
+                <h3>Opening Paragraphs</h3>
+                <button type="button" onClick={addOpeningSection}>+</button>
+              </div>
+              {blogForm.openingSections.map((section, index) => (
+                <div className="dynamic-form-row blog-opening-row" key={`opening-${index}`}>
+                  <input
+                    placeholder="Heading"
+                    value={section.heading}
+                    onChange={(event) => updateOpeningSection(index, 'heading', event.target.value)}
+                  />
+                  <textarea
+                    className="text-box"
+                    placeholder="Opening paragraph"
+                    value={section.text}
+                    onChange={(event) => updateOpeningSection(index, 'text', event.target.value)}
+                  />
+                  <button type="button" onClick={() => removeOpeningSection(index)}>-</button>
+                </div>
+              ))}
+            </div>
+
+            {renderListSections('numberedSections', 'Numbered Lists', 'Numbered list item')}
+            {renderListSections('pointedSections', 'Pointed Lists', 'Pointed list item')}
+
             <textarea className="text-box" name="conclusion" placeholder="Closing paragraph" value={blogForm.conclusion} onChange={handleBlogChange} />
             <input name="galleryImages" type="file" multiple onChange={handleBlogChange} />
             <div className="modal-buttons">

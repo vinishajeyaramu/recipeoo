@@ -6,12 +6,17 @@ const router = express.Router();
 const upload = multer({ dest: 'uploads/' });
 
 const blogUpload = upload.fields([
+  { name: 'cardImage', maxCount: 1 },
   { name: 'heroImage', maxCount: 1 },
   { name: 'galleryImages', maxCount: 8 },
 ]);
 
 const buildBlogPayload = (req) => {
   const payload = { ...req.body };
+
+  if (req.files?.cardImage?.[0]) {
+    payload.cardImage = `/uploads/${req.files.cardImage[0].filename}`;
+  }
 
   if (req.files?.heroImage?.[0]) {
     payload.heroImage = `/uploads/${req.files.heroImage[0].filename}`;
@@ -27,6 +32,16 @@ const buildBlogPayload = (req) => {
       .map((item) => item.trim())
       .filter(Boolean);
   }
+
+  ['openingSections', 'numberedSections', 'pointedSections'].forEach((field) => {
+    if (typeof payload[field] !== 'string') return;
+
+    try {
+      payload[field] = JSON.parse(payload[field]);
+    } catch {
+      payload[field] = [];
+    }
+  });
 
   return payload;
 };

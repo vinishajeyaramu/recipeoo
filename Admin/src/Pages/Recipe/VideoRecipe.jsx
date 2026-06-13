@@ -9,23 +9,19 @@ const emptyCardForm = {
   image: null,
   time: '',
   cuisine: '',
-  serves: '',
+  cuisineImage: null,
+  difficulty: '',
   rating: '',
 };
 
 const emptyRecipeForm = {
   title: '',
   category: '',
-  image: null,
   time: '',
   cuisine: '',
+  cuisineImage: null,
   difficulty: '',
-  rating: '',
-  serves: '',
-  ingredients: '',
-  instructions: '',
-  images: [],
-  video: null,
+  videoUrl: '',
 };
 
 const normalizeList = (value) => (Array.isArray(value) ? value : []);
@@ -113,7 +109,8 @@ const VideoRecipe = () => {
         image: null,
         time: item.time || '',
         cuisine: item.cuisine || '',
-        serves: item.serves || '',
+        cuisineImage: null,
+        difficulty: item.difficulty || '',
         rating: item.rating || '',
       });
       setShowCardModal(true);
@@ -123,16 +120,11 @@ const VideoRecipe = () => {
     setRecipeForm({
       title: item.title || '',
       category: item.category || '',
-      image: null,
       time: item.time || '',
       cuisine: item.cuisine || '',
+      cuisineImage: null,
       difficulty: item.difficulty || '',
-      rating: item.rating || '',
-      serves: item.serves || '',
-      ingredients: item.ingredients || '',
-      instructions: item.instructions || '',
-      images: [],
-      video: null,
+      videoUrl: item.videoUrl || '',
     });
     setShowRecipeModal(true);
   };
@@ -186,8 +178,8 @@ const VideoRecipe = () => {
 
   const handleCardSubmit = async () => {
     const requiredFields = editingItem
-      ? ['title', 'category', 'time', 'cuisine', 'rating']
-      : ['title', 'category', 'image', 'time', 'cuisine', 'rating'];
+      ? ['title', 'category', 'time', 'cuisine', 'difficulty', 'rating']
+      : ['title', 'category', 'image', 'time', 'cuisine', 'difficulty', 'rating'];
 
     if (!validateFields(cardForm, requiredFields)) return;
 
@@ -196,11 +188,14 @@ const VideoRecipe = () => {
     formData.append('category', cardForm.category);
     formData.append('time', cardForm.time);
     formData.append('cuisine', cardForm.cuisine);
-    formData.append('serves', cardForm.serves);
+    formData.append('difficulty', cardForm.difficulty);
     formData.append('rating', cardForm.rating);
     formData.append('type', 'Card');
     if (cardForm.image) {
       formData.append('image', cardForm.image);
+    }
+    if (cardForm.cuisineImage) {
+      formData.append('cuisineImage', cardForm.cuisineImage);
     }
 
     const isEditing = Boolean(editingItem?._id);
@@ -232,8 +227,8 @@ const VideoRecipe = () => {
 
   const handleRecipeSubmit = async () => {
     const requiredFields = editingItem
-      ? ['title', 'category', 'time', 'cuisine', 'difficulty', 'rating', 'serves', 'ingredients', 'instructions']
-      : ['title', 'category', 'image', 'time', 'cuisine', 'difficulty', 'rating', 'serves', 'ingredients', 'instructions', 'video'];
+      ? ['title', 'category', 'time', 'difficulty', 'cuisine', 'videoUrl']
+      : ['title', 'category', 'time', 'difficulty', 'cuisine', 'videoUrl'];
 
     if (!validateFields(recipeForm, requiredFields)) return;
 
@@ -243,17 +238,10 @@ const VideoRecipe = () => {
     formData.append('time', recipeForm.time);
     formData.append('cuisine', recipeForm.cuisine);
     formData.append('difficulty', recipeForm.difficulty);
-    formData.append('rating', recipeForm.rating);
-    formData.append('serves', recipeForm.serves);
-    formData.append('ingredients', recipeForm.ingredients);
-    formData.append('instructions', recipeForm.instructions);
+    formData.append('videoUrl', recipeForm.videoUrl);
     formData.append('type', 'Recipe');
-    if (recipeForm.image) {
-      formData.append('image', recipeForm.image);
-    }
-    recipeForm.images.forEach((image) => formData.append('images', image));
-    if (recipeForm.video) {
-      formData.append('video', recipeForm.video);
+    if (recipeForm.cuisineImage) {
+      formData.append('cuisineImage', recipeForm.cuisineImage);
     }
 
     const isEditing = Boolean(editingItem?._id);
@@ -299,7 +287,7 @@ const VideoRecipe = () => {
         <div className="recipe-header">
           <div className="page-title-group">
             <h1>VIDEO RECIPE</h1>
-            <p>Video cards no longer ask for difficulty, and edit/delete now work like the main recipe page.</p>
+            <p>Manage video recipe cards and detail entries with focused fields.</p>
           </div>
         </div>
 
@@ -324,12 +312,10 @@ const VideoRecipe = () => {
                   <th>Type</th>
                   <th>Title</th>
                   <th>Category</th>
-                  <th>Ingredients</th>
-                  <th>Instructions</th>
                   <th>Time</th>
                   <th>Cuisine</th>
+                  <th>Cuisine Image</th>
                   <th>Difficulty</th>
-                  <th>Serves</th>
                   <th>Rating</th>
                   <th>Image</th>
                   <th>Video</th>
@@ -343,12 +329,23 @@ const VideoRecipe = () => {
                     <td>{item.itemType === 'recipe' ? 'Video Recipe' : 'Video Card'}</td>
                     <td>{item.title}</td>
                     <td>{item.category}</td>
-                    <td>{item.ingredients || '-'}</td>
-                    <td>{item.instructions || '-'}</td>
                     <td>{item.time}</td>
                     <td>{item.cuisine}</td>
+                    <td>
+                      {item.cuisineImage ? (
+                        <img
+                          src={getMediaUrl(item.cuisineImage)}
+                          alt={`${item.cuisine || 'cuisine'} visual`}
+                          width="42"
+                          height="42"
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => setPreviewMedia({ type: 'image', src: getMediaUrl(item.cuisineImage) })}
+                        />
+                      ) : (
+                        '-'
+                      )}
+                    </td>
                     <td>{item.difficulty || '-'}</td>
-                    <td>{item.serves || '-'}</td>
                     <td>{item.rating}</td>
                     <td>
                       {Array.isArray(item.images) && item.images.length > 0 ? (
@@ -388,7 +385,11 @@ const VideoRecipe = () => {
                           <source src={getMediaUrl(item.video)} type="video/mp4" />
                         </video>
                       ) : (
-                        '-'
+                        item.videoUrl ? (
+                          <a href={item.videoUrl} target="_blank" rel="noreferrer">Open link</a>
+                        ) : (
+                          '-'
+                        )
                       )}
                     </td>
                     <td>
@@ -425,7 +426,9 @@ const VideoRecipe = () => {
             <input name="image" type="file" onChange={handleCardChange} />
             <input name="time" placeholder="Time" value={cardForm.time} onChange={handleCardChange} />
             <input name="cuisine" placeholder="Cuisine" value={cardForm.cuisine} onChange={handleCardChange} />
-            <input name="serves" placeholder="Serves" value={cardForm.serves} onChange={handleCardChange} />
+            <label className="field-label">Cuisine Image</label>
+            <input name="cuisineImage" type="file" onChange={handleCardChange} />
+            <input name="difficulty" placeholder="Difficulty" value={cardForm.difficulty} onChange={handleCardChange} />
             <input name="rating" placeholder="Rating" value={cardForm.rating} onChange={handleCardChange} />
             <div className="modal-buttons">
               <button onClick={handleCardSubmit}>{editingItem ? 'Update' : 'Save'}</button>
@@ -448,16 +451,12 @@ const VideoRecipe = () => {
                 </option>
               ))}
             </select>
-            <input name="image" type="file" onChange={handleRecipeChange} />
-            <input name="video" type="file" onChange={handleRecipeChange} />
             <input name="time" placeholder="Time" value={recipeForm.time} onChange={handleRecipeChange} />
-            <input name="cuisine" placeholder="Cuisine" value={recipeForm.cuisine} onChange={handleRecipeChange} />
             <input name="difficulty" placeholder="Difficulty" value={recipeForm.difficulty} onChange={handleRecipeChange} />
-            <input name="rating" placeholder="Rating" value={recipeForm.rating} onChange={handleRecipeChange} />
-            <input name="serves" placeholder="Serves" value={recipeForm.serves} onChange={handleRecipeChange} />
-            <textarea className="text-box" name="ingredients" placeholder="Ingredients" value={recipeForm.ingredients} onChange={handleRecipeChange} />
-            <textarea className="text-box" name="instructions" placeholder="Preparation Steps" value={recipeForm.instructions} onChange={handleRecipeChange} />
-            <input name="images" type="file" multiple onChange={handleRecipeChange} />
+            <input name="cuisine" placeholder="Cuisine" value={recipeForm.cuisine} onChange={handleRecipeChange} />
+            <label className="field-label">Cuisine Image</label>
+            <input name="cuisineImage" type="file" onChange={handleRecipeChange} />
+            <input name="videoUrl" placeholder="Video Link" value={recipeForm.videoUrl} onChange={handleRecipeChange} />
             <div className="modal-buttons">
               <button onClick={handleRecipeSubmit}>{editingItem ? 'Update' : 'Save'}</button>
               <button onClick={closeModals}>Cancel</button>

@@ -5,6 +5,7 @@ const CardSchema = new mongoose.Schema({
   image: String,
   time: String,
   cuisine: String,
+  cuisineImage: String,
   difficulty: String,
   rating: String,
   serves: String,

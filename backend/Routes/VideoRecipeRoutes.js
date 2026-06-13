@@ -22,6 +22,7 @@ router.post(
   '/',
   upload.fields([
     { name: 'image', maxCount: 1 },
+    { name: 'cuisineImage', maxCount: 1 },
     { name: 'images', maxCount: 6 },
     { name: 'video', maxCount: 1 }
   ]),
@@ -33,6 +34,9 @@ router.post(
     const images = req.files['images']
       ? req.files['images'].map(file => `/uploads/${file.filename}`)
       : [];
+    const cuisineImage = req.files['cuisineImage'] && req.files['cuisineImage'][0]
+      ? `/uploads/${req.files['cuisineImage'][0].filename}`
+      : '';
     const video = req.files['video'] && req.files['video'][0]
       ? `/uploads/${req.files['video'][0].filename}`
       : '';
@@ -44,6 +48,7 @@ router.post(
       video,
       time,
       cuisine,
+      cuisineImage,
       difficulty,
       rating,
       serves,
@@ -66,6 +71,7 @@ router.post(
 router.put('/:id', 
   upload.fields([
     { name: 'image', maxCount: 1 },
+    { name: 'cuisineImage', maxCount: 1 },
     { name: 'images', maxCount: 6 },
     { name: 'video', maxCount: 1 }
   ]), 
@@ -74,6 +80,10 @@ router.put('/:id',
 
     if (req.files['image']) {
       updateData.image = `/uploads/${req.files['image'][0].filename}`;
+    }
+
+    if (req.files['cuisineImage']) {
+      updateData.cuisineImage = `/uploads/${req.files['cuisineImage'][0].filename}`;
     }
 
     if (req.files['images']) {

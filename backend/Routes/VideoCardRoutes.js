@@ -16,21 +16,23 @@ router.get('/', async (req, res) => {
   res.json(items);
 });
 
-router.post('/', upload.fields([{ name: 'image' }, { name: 'thumbnail' }, { name: 'video' }]), async (req, res) => {
+router.post('/', upload.fields([{ name: 'image' }, { name: 'thumbnail' }, { name: 'cuisineImage' }, { name: 'video' }]), async (req, res) => {
   const { title, category, time, cuisine, difficulty, rating, serves, description, description2, author, authorImage } = req.body;
   const imageFile = req.files.image?.[0] || req.files.thumbnail?.[0];
   const image = imageFile ? `/uploads/${imageFile.filename}` : '';
+  const cuisineImage = req.files.cuisineImage?.[0] ? `/uploads/${req.files.cuisineImage[0].filename}` : '';
   const video = req.files.video?.[0] ? `/uploads/${req.files.video[0].filename}` : '';
   const created = await VideoRecipe.create({
-    title, category, time, cuisine, difficulty, rating, serves, description, description2, author, authorImage, tags: toList(req.body.tags), image, video
+    title, category, time, cuisine, cuisineImage, difficulty, rating, serves, description, description2, author, authorImage, tags: toList(req.body.tags), image, video
   });
   res.json(created);
 });
 
-router.put('/:id', upload.fields([{ name: 'image' }, { name: 'thumbnail' }, { name: 'video' }]), async (req, res) => {
+router.put('/:id', upload.fields([{ name: 'image' }, { name: 'thumbnail' }, { name: 'cuisineImage' }, { name: 'video' }]), async (req, res) => {
   const data = { ...req.body };
   const imageFile = req.files.image?.[0] || req.files.thumbnail?.[0];
   if (imageFile) data.image = `/uploads/${imageFile.filename}`;
+  if (req.files.cuisineImage) data.cuisineImage = `/uploads/${req.files.cuisineImage[0].filename}`;
   if (req.files.video) data.video = `/uploads/${req.files.video[0].filename}`;
   if ('tags' in data) data.tags = toList(data.tags);
   const updated = await VideoRecipe.findByIdAndUpdate(req.params.id, data, { new: true });
