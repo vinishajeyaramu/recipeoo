@@ -3466,14 +3466,14 @@ const totalPages = Math.ceil(allRecipes.length / RECIPES_PER_PAGE);
 const startIdx = (currentPage - 1) * RECIPES_PER_PAGE;
 const paginatedRecipes = allRecipes.slice(startIdx, startIdx + RECIPES_PER_PAGE);
 
- useEffect(() => {
+useEffect(() => {
   const pageFromParams = getPageFromParams();
   const boundedPage = Math.min(Math.max(pageFromParams, 1), Math.max(totalPages, 1));
 
   if (boundedPage !== currentPage) {
     setCurrentPage(boundedPage);
   }
-}, [searchParams, totalPages]);
+}, [searchParams, totalPages, currentPage]);
 
  const changePage = (pageNum) => {
   if (pageNum >= 1 && pageNum <= totalPages) {

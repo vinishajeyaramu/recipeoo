@@ -40,10 +40,10 @@ const BlogDetails = () => {
   const { title } = useParams();
   const blog = blogData.find((item) => item.slug === title) || null;
 
-  const galleryItems = useMemo(() => {
-    if (blog?.galleryImages?.length) return blog.galleryImages;
-    return placeholderGallery;
-  }, [blog]);
+  // const galleryItems = useMemo(() => {
+  //   if (blog?.galleryImages?.length) return blog.galleryImages;
+  //   return placeholderGallery;
+  // }, [blog]);
   const relatedPosts = useMemo(
     () => blogData.filter((item) => item.slug !== title).slice(0, 3),
     [title]
