@@ -10,7 +10,15 @@ const BlogCard = ({ blog }) => {
   return (
     <div className="blog-card">
       <div className="blog-img">
-        <Link to={link}><img src={image} alt={title} className="blog-image" /></Link>
+        <Link to={link}>
+          {image ? (
+            <img src={image} alt={title} className="blog-image" />
+          ) : (
+            <div className="blog-image-placeholder">
+              <span>Add blog card image</span>
+            </div>
+          )}
+        </Link>
         {tag && <Link to={tagLink}><div className="blog-tag">{tag}</div></Link>}
       </div>
       <Link to={link}>

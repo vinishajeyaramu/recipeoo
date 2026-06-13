@@ -88,33 +88,37 @@
 }
 .v-info{
     width: 100%;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    align-items: start;
+    display: grid;
+    grid-template-columns: 36% 36% 28%;
+    gap: 6px 10px;
+    margin-top: 10px;
 }
 .v-info li{
     list-style-type: none;
 }
 .v-info a{
+    min-height: 30px;
     color: gray;
+    font-size: 14px;
+    display: flex;
+    line-height: 1.35;
 }
 .v-info a:hover{
     color: #EBB22F;
 }
 .v-time-icon{
     display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: start;
-    gap: 5px;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
 }
 .v-cuisine{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: start;
-    gap: 5px;
+   display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
 }
 .v-cuisine img{
     width: 20px;
@@ -124,11 +128,11 @@
     object-position: center;
 }
 .v-difficulty-icon{
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: start;
-    gap: 5px;
+   display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 4px;
 }
 
 @media screen and (max-width: 1024px) {

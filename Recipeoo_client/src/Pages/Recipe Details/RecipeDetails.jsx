@@ -1,15 +1,24 @@
-import React, { useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import './RecipeDetails.css';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import { CiHeart } from 'react-icons/ci';
-import { FaClock, FaStar } from 'react-icons/fa';
+import { FaClock, FaHeart, FaStar } from 'react-icons/fa';
 import { LuChefHat } from 'react-icons/lu';
 import { GiForkKnifeSpoon } from 'react-icons/gi';
 import { BsCheck } from 'react-icons/bs';
 import html2canvas from 'html2canvas';
 import PopularTags from '../../Resuable Components/Populartags/Populatags';
 import { recipecards } from '../All Recipies/AllRecipe';
+import { blogData } from '../Blog/Blog';
 import { getApiUrl } from '../../config/api';
+import { animateToWishlist } from '../../utils/wishlistFly';
+import { GiSpoon } from "react-icons/gi";
+import { FaImage } from "react-icons/fa";
+import { FaRegFilePdf } from "react-icons/fa6";
+import { CiSquarePlus, CiSquareMinus } from "react-icons/ci";
+import { getStoredFavorites, requireSignedInUser, saveStoredFavorites, showAppMessage } from '../../utils/collectionAccess';
+import { useDispatch } from 'react-redux';
+import { addToDownloads } from '../../Redux/Downloadslice';
 
 const slugify = (text) =>
   text?.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
@@ -52,9 +61,19 @@ const averageRating = (
 const fallbackRecipe = recipecards[82] || {};
 
 const getRelatedRecipes = (recipe) =>
-  recipecards
-    .filter((item) => item.title !== recipe.title && item.category === recipe.category)
-    .slice(0, 5);
+  [
+    ...recipecards.filter(
+      (item) => item.title !== recipe.title && item.category === recipe.category
+    ),
+    ...recipecards.filter(
+      (item) => item.title !== recipe.title && item.category !== recipe.category
+    ),
+  ]
+    .filter(
+      (item, index, array) =>
+        array.findIndex((candidate) => candidate.title === item.title) === index
+    )
+    .slice(0, 6);
 
 const sanitizeFileName = (value) =>
   (value || 'recipe').toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
@@ -62,22 +81,218 @@ const sanitizeFileName = (value) =>
 const renderStars = (count) =>
   Array.from({ length: count }, (_, index) => <FaStar key={index} />);
 
+const parseSingleAmount = (value) => {
+  const trimmedValue = value?.trim();
+
+  if (!trimmedValue) return null;
+
+  if (trimmedValue.includes('/')) {
+    const [numerator, denominator] = trimmedValue.split('/').map(Number);
+
+    if (!numerator || !denominator) return null;
+
+    return numerator / denominator;
+  }
+
+  const parsed = Number(trimmedValue);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const parseQuantity = (quantity) => {
+  const trimmedQuantity = quantity?.trim();
+
+  if (!trimmedQuantity) return null;
+
+  const rangeMatch = trimmedQuantity.match(
+    /^(\d+(?:\.\d+)?|\d+\/\d+)\s*-\s*(\d+(?:\.\d+)?|\d+\/\d+)\s*(.*)$/
+  );
+
+  if (rangeMatch) {
+    return {
+      type: 'range',
+      start: parseSingleAmount(rangeMatch[1]),
+      end: parseSingleAmount(rangeMatch[2]),
+      unit: rangeMatch[3]?.trim() || '',
+    };
+  }
+
+  const mixedMatch = trimmedQuantity.match(/^(\d+)\s+(\d+\/\d+)\s*(.*)$/);
+
+  if (mixedMatch) {
+    const whole = Number(mixedMatch[1]);
+    const fraction = parseSingleAmount(mixedMatch[2]);
+
+    if (!Number.isFinite(whole) || fraction === null) return null;
+
+    return {
+      type: 'single',
+      amount: whole + fraction,
+      unit: mixedMatch[3]?.trim() || '',
+    };
+  }
+
+  const singleMatch = trimmedQuantity.match(/^(\d+(?:\.\d+)?|\d+\/\d+)\s*(.*)$/);
+
+  if (singleMatch) {
+    return {
+      type: 'single',
+      amount: parseSingleAmount(singleMatch[1]),
+      unit: singleMatch[2]?.trim() || '',
+    };
+  }
+
+  return null;
+};
+
+const formatAmount = (value) => {
+  if (!Number.isFinite(value)) return '';
+
+  const roundedInteger = Math.round(value);
+  if (Math.abs(value - roundedInteger) < 0.01) {
+    return `${roundedInteger}`;
+  }
+
+  const whole = Math.floor(value);
+  const fraction = value - whole;
+  const denominators = [2, 3, 4, 8];
+
+  for (const denominator of denominators) {
+    const numerator = Math.round(fraction * denominator);
+
+    if (numerator > 0 && Math.abs(fraction - numerator / denominator) < 0.03) {
+      if (numerator === denominator) {
+        return `${whole + 1}`;
+      }
+
+      return whole > 0
+        ? `${whole} ${numerator}/${denominator}`
+        : `${numerator}/${denominator}`;
+    }
+  }
+
+  return `${Number(value.toFixed(2))}`;
+};
+
+const scaleQuantity = (quantity, multiplier) => {
+  const parsedQuantity = parseQuantity(quantity);
+
+  if (!parsedQuantity) return quantity;
+
+  if (parsedQuantity.type === 'range') {
+    if (parsedQuantity.start === null || parsedQuantity.end === null) return quantity;
+
+    const scaledStart = formatAmount(parsedQuantity.start * multiplier);
+    const scaledEnd = formatAmount(parsedQuantity.end * multiplier);
+
+    return `${scaledStart}-${scaledEnd}${parsedQuantity.unit ? ` ${parsedQuantity.unit}` : ''}`;
+  }
+
+  if (parsedQuantity.amount === null) return quantity;
+
+  const scaledAmount = formatAmount(parsedQuantity.amount * multiplier);
+  return `${scaledAmount}${parsedQuantity.unit ? ` ${parsedQuantity.unit}` : ''}`;
+};
+
+const getDefaultPersonCount = (servings) => {
+  if (typeof servings === 'number' && Number.isFinite(servings) && servings > 0) {
+    return servings;
+  }
+
+  const matchedCount = `${servings || ''}`.match(/\d+/);
+  const parsedServings = matchedCount ? Number.parseInt(matchedCount[0], 10) : NaN;
+
+  return Number.isFinite(parsedServings) && parsedServings > 0 ? parsedServings : 1;
+};
+
 const RecipeDetails = () => {
   const { title } = useParams();
+  const location = useLocation();
   const downloadRef = useRef(null);
-
   const recipe =
     recipecards.find((item) => slugify(item.title) === title) || fallbackRecipe;
+  const defaultPersonCount = getDefaultPersonCount(recipe.servings);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [personCount, setPersonCount] = useState(defaultPersonCount);
+  const isVideoRecipeRoute = location.pathname.startsWith('/video-recipe/');
+  const dispatch = useDispatch();
 
-  const relatedRecipes = getRelatedRecipes(recipe);
-  const bottomRelatedRecipes = relatedRecipes.slice(0, 3);
-  const directionCount = (recipe.directions || []).length || 0;
-  const galleryItems =
-    recipe.galleryImages && recipe.galleryImages.length
-      ? recipe.galleryImages
-      : Array.from({ length: directionCount }, (_, index) => ({
-          id: `placeholder-${index + 1}`,
-        }));
+  const relatedRecipes = useMemo(() => getRelatedRecipes(recipe), [recipe]);
+  const bottomRelatedRecipes = useMemo(() => relatedRecipes.slice(0, 3), [relatedRecipes]);
+  const sidebarRelatedRecipes = useMemo(() => relatedRecipes.slice(3, 6), [relatedRecipes]);
+  const sidebarBlogs = useMemo(
+    () => [...blogData].sort(() => Math.random() - 0.5).slice(0, 3),
+    [title]
+  );
+  const directionImages = (recipe.directions || [])
+    .map((step, index) =>
+      step.image
+        ? {
+            id: `direction-image-${index + 1}`,
+            src: step.image,
+          }
+        : null
+    )
+    .filter(Boolean);
+  const galleryItems = directionImages.length
+    ? directionImages
+    : Array.from({ length: (recipe.directions || []).length || 0 }, (_, index) => ({
+        id: `placeholder-${index + 1}`,
+        src: '',
+      }));
+  const scaledIngredients = useMemo(() => {
+    const multiplier = personCount / defaultPersonCount;
+
+    return (recipe.ingredients || []).map((item) => ({
+      ...item,
+      quantity: scaleQuantity(item.quantity, multiplier),
+    }));
+  }, [defaultPersonCount, personCount, recipe.ingredients]);
+
+  useEffect(() => {
+    const favorites = getStoredFavorites();
+    setIsFavorite(
+      favorites.some((item) => slugify(item.title) === slugify(recipe.title))
+    );
+  }, [recipe.title]);
+
+  useEffect(() => {
+    setPersonCount(defaultPersonCount);
+  }, [defaultPersonCount, recipe.title]);
+
+  const handleToggleFavorite = (event) => {
+    if (isVideoRecipeRoute) {
+      showAppMessage('Video recipes cannot be added to favorites or downloads.');
+      return;
+    }
+
+    if (!requireSignedInUser()) {
+      return;
+    }
+
+    const favorites = getStoredFavorites();
+    const recipeSlug = slugify(recipe.title);
+    const alreadySaved = favorites.some(
+      (item) => slugify(item.title) === recipeSlug
+    );
+
+    const updatedFavorites = alreadySaved
+      ? favorites.filter((item) => slugify(item.title) !== recipeSlug)
+      : [
+          ...favorites,
+          {
+            ...recipe,
+            id: recipe.id || recipe._id || recipeSlug,
+            itemType: recipe.type || recipe.itemType || 'recipe',
+          },
+        ];
+
+    saveStoredFavorites(updatedFavorites);
+    setIsFavorite(!alreadySaved);
+
+    if (!alreadySaved) {
+      animateToWishlist(event.currentTarget);
+    }
+  };
 
   const trackDownload = async (format) => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo') || 'null');
@@ -104,6 +319,16 @@ const RecipeDetails = () => {
     }
   };
 
+  const addRecipeToDownloads = () => {
+    dispatch(
+      addToDownloads({
+        ...recipe,
+        id: recipe.id || recipe._id || slugify(recipe.title),
+        itemType: recipe.type || recipe.itemType || 'recipe',
+      })
+    );
+  };
+
   const renderDetailsToCanvas = async () => {
     if (!downloadRef.current) return null;
 
@@ -124,6 +349,7 @@ const RecipeDetails = () => {
     link.download = `${sanitizeFileName(recipe.title)}-details.jpg`;
     link.click();
 
+    addRecipeToDownloads();
     trackDownload('jpg');
   };
 
@@ -153,7 +379,16 @@ const RecipeDetails = () => {
     `);
     printWindow.document.close();
 
+    addRecipeToDownloads();
     trackDownload('pdf');
+  };
+
+  const handleDecreasePersons = () => {
+    setPersonCount((currentCount) => Math.max(defaultPersonCount, currentCount - 1));
+  };
+
+  const handleIncreasePersons = () => {
+    setPersonCount((currentCount) => currentCount + 1);
   };
 
   return (
@@ -199,7 +434,7 @@ const RecipeDetails = () => {
           </div>
 
           <div className="author-det">
-            <div></div>
+            {/* <div></div> */}
             <div className="auth-grid">
               <div className="auth-sec">
                 <div className="author-img">
@@ -211,7 +446,20 @@ const RecipeDetails = () => {
                 </div>
               </div>
               <div className="auth-icons">
-                <li><CiHeart className="icon" /></li>
+                <li
+                  onClick={handleToggleFavorite}
+                  title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                  className={isFavorite ? 'favorite-active' : ''}
+                >
+                  {isFavorite ? (
+                    <FaHeart className="icon" />
+                  ) : (
+                    <CiHeart className="icon" />
+                  )}
+                </li>
+                <li><FaImage className="icon" onClick={handleJpgDownload}/></li>
+                <li><FaRegFilePdf className="icon" onClick={handlePdfDownload}/></li>
+
               </div>
             </div>
           </div>
@@ -219,11 +467,34 @@ const RecipeDetails = () => {
           <div className="recipe-ing">
             <div></div>
             <div className="ing-grid">
-              <h5>Ingredients<span>{recipe.servings || ''}</span></h5>
+              <div className="ingredients-heading">
+                <h5>
+                  Ingredients
+                  <span>{personCount} Person(s)</span>
+                </h5>
+                <div className="person-controls">
+                  <button
+                    type="button"
+                    className="person-control-btn"
+                    onClick={handleDecreasePersons}
+                    aria-label="Decrease person count"
+                  >
+                    <CiSquareMinus />
+                  </button>
+                  <button
+                    type="button"
+                    className="person-control-btn"
+                    onClick={handleIncreasePersons}
+                    aria-label="Increase person count"
+                  >
+                    <CiSquarePlus />
+                  </button>
+                </div>
+              </div>
               <div className="ing-list">
-                {(recipe.ingredients || []).map((item, index) => (
+                {scaledIngredients.map((item, index) => (
                   <label key={`${item.name}-${index}`} className="ingredient-item">
-                    <input type="checkbox" />
+                    <GiSpoon />
                     <span className="quantity">{item.quantity}</span>
                     <span className="name">{item.name}</span>
                   </label>
@@ -264,7 +535,7 @@ const RecipeDetails = () => {
             </div>
 
             <div className="rd-video-sec">
-              <h5>Video</h5>
+              <h5>Video - Similar recipe</h5>
               <div className="video-wrapper">
                 <iframe
                   src={recipe.videoUrl || 'https://www.youtube.com/embed/D0X0JCk9H7A?si=ImoUMcwoCKJGZHV3'}
@@ -282,9 +553,9 @@ const RecipeDetails = () => {
               <h5>Images</h5>
               <div className="images-grid">
                 {galleryItems.map((image, index) => (
-                  <div key={image.id || `${image}-${index}`} className="img-grid-item">
-                    {typeof image === 'string' && image ? (
-                      <img src={image} alt={`${recipe.title || 'Recipe'} ${index + 1}`} />
+                  <div key={image.id || `${image.src}-${index}`} className="img-grid-item">
+                    {image.src ? (
+                      <img src={image.src} alt={`${recipe.title || 'Recipe'} ${index + 1}`} />
                     ) : (
                       <div className="img-placeholder"></div>
                     )}
@@ -329,27 +600,41 @@ const RecipeDetails = () => {
                     key={item.id}
                     className="related-recipe-item"
                     to={`/recipe/${slugify(item.title)}`}
+                    style={{textDecoration:'none'}}
                   >
-                    <img src={item.image || ''} alt={item.title} />
+                    <div className="related-recipe-card-image">
+                      <img src={item.image || ''} alt={item.title} />
+                    </div>
+                    <div className="related-recipe-card-copy">
+                      <p>{item.category}</p>
+                      <h6>{item.title}</h6>
+                      <div className="related-recipe-card-meta">
+                        <div><FaClock /> {item.time || '-'}</div>
+                        <div>{item.cuisine || '-'}</div>
+                        <div>{item.difficulty || '-'}</div>
+                        <div>{item.servings || '-'}</div>
+                      </div>
+                        
+                    </div>
                   </Link>
                 ))}
               </div>
             </div>
 
-            <div className="details-bottom-actions">
+            {/* <div className="details-bottom-actions">
               <button className="details-download-btn" onClick={handleJpgDownload}>
                 Download JPG
               </button>
               <button className="details-download-btn" onClick={handlePdfDownload}>
                 Save PDF
               </button>
-            </div>
+            </div> */}
           </div>
 
           <div className="related-sec">
-            <div className="related-recipe-sec">
+            <div className="related-recipe-sec sidebar-card-block">
               <h5>Recipes</h5>
-              {relatedRecipes.map((item) => (
+              {sidebarRelatedRecipes.map((item) => (
                 <Link
                   key={item.id}
                   className="related-recipes"
@@ -362,6 +647,30 @@ const RecipeDetails = () => {
                     <p className="cat">{item.category}</p>
                     <h5>{item.title}</h5>
                     <p className="star-icon"><FaStar /><FaStar /><FaStar /><FaStar /><FaStar /></p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+
+            <div className="related-recipe-sec sidebar-card-block">
+              <h5>Latest Blogs</h5>
+              {sidebarBlogs.map((item) => (
+                <Link
+                  key={item.slug}
+                  className="related-recipes"
+                  to={`/blog/${item.slug}`}
+                >
+                  <div className="related-recipe-img">
+                    {item.image ? (
+                      <img src={item.image} alt={item.title} />
+                    ) : (
+                      <div className="related-blog-placeholder"></div>
+                    )}
+                  </div>
+                  <div className="related-recipe-content">
+                    <p className="cat">{item.tag || 'Blog'}</p>
+                    <h5>{item.title}</h5>
+                    <p className="blog-meta-line">{item.readTime || '5 Min'} read</p>
                   </div>
                 </Link>
               ))}

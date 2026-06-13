@@ -41,12 +41,66 @@ nav {
   list-style-type: none;
   color: #ebb22f;
   font-size: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 .nav-right a {
   text-decoration: none;
   color: #ebb22f;
   font-size: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.nav-right svg {
+  display: block;
+  vertical-align: middle;
+}
+
+.wishlist-nav-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  transform-origin: center;
+  transition: transform 0.25s ease;
+}
+
+.download-nav-link {
+  position: relative;
+}
+
+.download-count-badge {
+  position: absolute;
+  top: -8px;
+  right: -10px;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: #ebb22f;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 6px 14px rgba(235, 178, 47, 0.35);
+}
+
+.wishlist-nav-link svg {
+  transform: translateY(1px);
+}
+
+.wishlist-nav-link.wishlist-bounce {
+  animation: wishlistBounce 0.65s ease;
 }
 
 .menu-list li {
@@ -81,7 +135,41 @@ nav {
 }
 
 .logo img {
-  width: clamp(120px, 18vw, 220px);
+  width: 150px;
+}
+
+.app-message-toast {
+  position: fixed;
+  right: 20px;
+  bottom: 24px;
+  z-index: 9999;
+  max-width: min(360px, calc(100vw - 24px));
+  background: rgba(34, 34, 34, 0.95);
+  color: #ffffff;
+  padding: 14px 16px;
+  border-left: 4px solid #ebb22f;
+  border-radius: 10px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+@keyframes wishlistBounce {
+  0% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.28) rotate(-10deg);
+  }
+  50% {
+    transform: scale(0.95) rotate(8deg);
+  }
+  75% {
+    transform: scale(1.16) rotate(-4deg);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 
 @media screen and (max-width: 768px) {
@@ -105,6 +193,14 @@ nav {
 
   .logo img {
     width: 120px;
+  }
+
+  .download-count-badge {
+    top: -6px;
+    right: -8px;
+    min-width: 18px;
+    height: 18px;
+    font-size: 10px;
   }
 }
 
@@ -139,5 +235,12 @@ nav {
 
   .logo img {
     width: 98px;
+  }
+
+  .app-message-toast {
+    right: 12px;
+    left: 12px;
+    bottom: 16px;
+    max-width: none;
   }
 }

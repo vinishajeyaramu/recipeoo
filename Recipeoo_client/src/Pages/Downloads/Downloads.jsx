@@ -1,12 +1,11 @@
 import React from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useSelector } from 'react-redux';
 import RecipeCard from '../../Resuable Components/Recipercards/Recipecards';
 import './Downloads.css';
-import { removeFromDownloads } from '../../Redux/Downloadslice';
+import { selectCurrentUserDownloads } from '../../Redux/Downloadslice';
 import Pageheader from '../../Resuable Components/Page Header/Pageheader';
 import PopularTags from '../../Resuable Components/Populartags/Populatags';
-
+import { isSignedInUser, isVideoItem } from '../../utils/collectionAccess';
 const pageProps = {
   title: 'Downloads',
   description:
@@ -35,19 +34,12 @@ const tagData2 = [
   { name: 'VIDEO RECIPE', link: '/tags/video-recipe' },
 ];
 
-const slugify = (text) =>
-  text?.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
-
 const Downloads = () => {
-  const downloads = useSelector((state) => state.downloads.downloads);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-
-  const openRecipeDetails = (recipe) => {
-    navigate(`/recipe/${slugify(recipe.title)}`, {
-      state: { fromDownloads: true },
-    });
-  };
+  const downloads = useSelector(selectCurrentUserDownloads);
+  const signedIn = isSignedInUser();
+  const recipeDownloads = signedIn
+    ? downloads.filter((recipe) => !isVideoItem(recipe))
+    : [];
 
   return (
     <>
@@ -55,27 +47,16 @@ const Downloads = () => {
         <Pageheader pageheader={pageProps} />
       </div>
       <div className="downloads-container">
-        {downloads.length === 0 ? (
-          <p>You haven't added any recipes for download.</p>
+        {recipeDownloads.length === 0 ? (
+          <p>{signedIn ? 'Nothing added to downloads yet.' : 'Please sign in to view your downloaded recipes.'}</p>
         ) : (
           <div className="recipes-container">
-            {downloads.map((recipe, index) => {
+            {recipeDownloads.map((recipe, index) => {
               const recipeKey = recipe._id || recipe.id || `${recipe.title}-${index}`;
 
               return (
                 <div key={recipeKey} className="download-card">
-                  <RecipeCard {...recipe} />
-                  <div className="button-sec">
-                    <button className="download-btn" onClick={() => openRecipeDetails(recipe)}>
-                      Open Details
-                    </button>
-                    <button
-                      className="remove-btn"
-                      onClick={() => dispatch(removeFromDownloads(recipe.id || recipe._id || recipeKey))}
-                    >
-                      Remove
-                    </button>
-                  </div>
+                  <RecipeCard {...recipe} showActions={false} />
                 </div>
               );
             })}

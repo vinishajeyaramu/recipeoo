@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React from 'react';
 import './Videorecipecard.css';
 import { FaHeart, FaRegBookmark, FaClock, FaPlay } from 'react-icons/fa';
 import { LuChefHat } from "react-icons/lu";
 import { Link } from 'react-router-dom';
+import { showAppMessage } from '../../utils/collectionAccess';
 
 // Utility function to convert string into URL-friendly slug
 const slugify = (text) =>
@@ -19,8 +20,11 @@ const VideoCard = ({
   flag,
   servings
 }) => {
-  const [liked, setLiked] = useState(false);
-  const [saved, setSaved] = useState(false);
+  const handleBlockedAction = (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    showAppMessage('Video recipes cannot be added to favorites or downloads.');
+  };
 
   // Auto-generated links
   const link = `/video-recipe/${slugify(title)}`;
@@ -41,11 +45,11 @@ const VideoCard = ({
         </div>
         <p className='v-rating'>⭐ {rating}</p>
         <div className='v-r-icons'>
-          <span onClick={() => setLiked(!liked)} className='icon'>
-            <FaHeart color={liked ? 'red' : '#EBB22F'} />
+          <span onClick={handleBlockedAction} className='icon'>
+            <FaHeart color={'#EBB22F'} />
           </span>
-          <span onClick={() => setSaved(!saved)} className='icon'>
-            <FaRegBookmark color={saved ? 'red' : '#EBB22F'} />
+          <span onClick={handleBlockedAction} className='icon'>
+            <FaRegBookmark color={'#EBB22F'} />
           </span>
         </div>
       </div>
@@ -60,26 +64,26 @@ const VideoCard = ({
 
       <div className='v-info'>
         <li>
-          <Link className='v-time-icon' to={timeLink}>
-            <FaClock /> {time}
-          </Link>
-        </li>
-        <li>
           <Link className='v-cuisine' to={cuisineLink}>
             {flag && <img src={flag} alt={`${cuisine} flag`} className="flag-icon" />} {cuisine}
           </Link>
         </li>
-        {difficulty && (
-          <li>
-            <Link className='v-difficulty-icon' to={difficultyLink}>
-              <LuChefHat /> {difficulty}
-            </Link>
-          </li>
-        )}
+        <li>
+          <Link className='v-time-icon' to={timeLink}>
+            <FaClock /> {time}
+          </Link>
+        </li>
         {servings && (
           <li>
             <Link className='v-servings-icon' to={servingsLink}>
               {servings}
+            </Link>
+          </li>
+        )}
+        {difficulty && (
+          <li>
+            <Link className='v-difficulty-icon' to={difficultyLink}>
+              <LuChefHat /> {difficulty}
             </Link>
           </li>
         )}

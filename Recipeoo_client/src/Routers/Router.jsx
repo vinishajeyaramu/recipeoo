@@ -23,6 +23,7 @@ import SearchResults from '../Pages/Search/Search';
 import AtoZRecipes from '../Pages/A-z/AtoZRecipes';
 import RecipesByLetter from '../Pages/A-z/RecipesByLetter';
 import RecipeDetails from '../Pages/Recipe Details/RecipeDetails';
+import VideoRecipePlayer from '../Pages/Video Recipe/VideoRecipePlayer';
 import TagsPage from '../Pages/Tags/TagsPage';
 import Overallfilter from '../Pages/Overall FIlter/Overallfilter';
 
@@ -47,7 +48,7 @@ const Router = () => {
           <Route path="/cuisine/:cuisineName" element={<CuisineDetail />} />
           <Route path="/category/:categoryName" element={<CategoryDetail />} />
           <Route path="/video-recipes" element={<AllVideoRecipe />} />
-          <Route path="/video-recipe/:title" element={<RecipeDetails />} />
+          <Route path="/video-recipe/:title" element={<VideoRecipePlayer />} />
           <Route path="/account" element={<Account />} />
           <Route path="/useraccount" element={<UserRoute><UseraccountPage /></UserRoute>} />
           <Route path="/favorites" element={<Fav />} />

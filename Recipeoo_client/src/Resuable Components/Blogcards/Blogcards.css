@@ -18,6 +18,21 @@
     border-radius: 10px;
     
 }
+.blog-image-placeholder{
+    width: 100%;
+    min-height: 260px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f4d06f, #ebb22f);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 20px;
+    font-size: 16px;
+    font-weight: 700;
+    line-height: 1.5;
+}
 .blog-tag{
     position: absolute;
     z-index: 9999;

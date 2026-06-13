@@ -1,16 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './Recipecards.css';
-import { FaHeart, FaRegBookmark, FaClock } from 'react-icons/fa';
+import { FaHeart, FaRegBookmark, FaClock,FaStar } from 'react-icons/fa';
 import { LuChefHat } from "react-icons/lu";
 import { GiForkKnifeSpoon } from "react-icons/gi";
 import { useNavigate } from 'react-router-dom';
 import { getAssetUrl } from '../../config/api';
+import { animateToWishlist } from '../../utils/wishlistFly';
+import { useDispatch, useSelector } from 'react-redux';
+import { addToDownloads, removeFromDownloads, selectCurrentUserDownloads } from '../../Redux/Downloadslice';
+import { getStoredFavorites, requireSignedInUser, saveStoredFavorites, showAppMessage } from '../../utils/collectionAccess';
 
 // Utility function to convert string into URL-friendly slug
 const slugify = (text) =>
   text?.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
 
 const RecipeCard = ({
+  id,
+  _id,
   image,
   rating,
   category,
@@ -19,12 +25,16 @@ const RecipeCard = ({
   cuisine,
   difficulty,
   servings,
-  flag
+  flag,
+  type,
+  itemType,
+  showActions = true,
+  ...recipeData
 }) => {
-   console.log(image,"image in crecu")
   const [liked, setLiked] = useState(false);
-  const [saved, setSaved] = useState(false);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const downloads = useSelector(selectCurrentUserDownloads);
 
   const link = `/recipe/${slugify(title)}`;
   const categoryLink = `/category/${slugify(category)}`;
@@ -32,28 +42,79 @@ const RecipeCard = ({
   const cuisineLink = `/cuisine/${slugify(cuisine)}`;
   const difficultyLink = difficulty ? `/difficulty/${slugify(difficulty)}` : '';
   const servingsLink = servings ? `/servings/${slugify(servings.replace(/serves/i, '').trim())}` : '';
-  
-const handleLike = () => {
-  let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
 
-  if (!liked) {
-    favorites.push({
-      image,
-      title,
-      category,
-      rating,
-      time,
-      cuisine,
-      difficulty,
-      servings,
-      flag
-    });
+  useEffect(() => {
+    const favorites = getStoredFavorites();
+    setLiked(favorites.some((item) => item.title === title));
+  }, [title]);
+
+  const recipeId = id || _id || title;
+  const isSaved = downloads.some(
+    (item) => (item.id || item._id || item.title) === recipeId
+  );
+
+  const recipePayload = {
+    id,
+    _id,
+    image,
+    rating,
+    category,
+    title,
+    time,
+    cuisine,
+    difficulty,
+    servings,
+    flag,
+    ...recipeData,
+    itemType: itemType || type || 'recipe',
+  };
+  
+const handleLike = (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+  if (!requireSignedInUser()) {
+    return;
+  }
+
+  let favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+  favorites = getStoredFavorites();
+  const shouldAddToWishlist = !liked;
+
+  if (shouldAddToWishlist) {
+    favorites.push(recipePayload);
   } else {
     favorites = favorites.filter(item => item.title !== title);
   }
 
-  localStorage.setItem('favorites', JSON.stringify(favorites));
-  setLiked(!liked);
+  saveStoredFavorites(favorites);
+  setLiked(shouldAddToWishlist);
+
+  if (shouldAddToWishlist) {
+    animateToWishlist(event.currentTarget);
+  }
+};
+
+const handleDownloadToggle = (event) => {
+  event.preventDefault();
+  event.stopPropagation();
+
+  if (!requireSignedInUser()) {
+    return;
+  }
+
+  if (recipePayload.itemType === 'video') {
+    showAppMessage('Video recipes cannot be added to downloads.');
+    return;
+  }
+
+  if (isSaved) {
+    dispatch(removeFromDownloads(recipeId));
+    showAppMessage('Recipe removed from downloads.');
+    return;
+  }
+
+  dispatch(addToDownloads(recipePayload));
+  showAppMessage('Recipe added to downloads.');
 };
 
   
@@ -66,15 +127,17 @@ const handleLike = () => {
             alt={title} className="recipe-img"
           />
         </a>
-        <p className='rating'>â­ {rating}</p>
-        <div className='rating-icons'>
-          <span onClick={handleLike} className='icon'>
-            <FaHeart color={liked ? 'red' : '#EBB22F'} />
-          </span>
-          <span onClick={() => setSaved(!saved)} className='icon'>
-            <FaRegBookmark color={saved ? 'red' : '#EBB22F'} />
-          </span>
-        </div>
+        <p className='rating'><FaStar className='star-icon'/>{rating}</p>
+        {showActions ? (
+          <div className='rating-icons'>
+            <span onClick={handleLike} className='icon'>
+              <FaHeart color={liked ? 'red' : '#EBB22F'} />
+            </span>
+            <span onClick={handleDownloadToggle} className='icon'>
+              <FaRegBookmark color={isSaved ? 'red' : '#EBB22F'} />
+            </span>
+          </div>
+        ) : null}
       </div>
 
       <a href={categoryLink}>
@@ -87,29 +150,26 @@ const handleLike = () => {
 
       <div className='info'>
         <li>
-          <a className='time-icon' href={timeLink}>
-            <FaClock /> {time}
-          </a>
-        </li>
-
-        <li>
           <a className='cuisine' href={cuisineLink}>
             {flag && <img src={flag} alt={`${cuisine} flag`} className="flag-icon" />} {cuisine}
           </a>
         </li>
-
-        {difficulty && (
-          <li>
-            <a className='difficulty-icon' href={difficultyLink}>
-              <LuChefHat /> {difficulty}
-            </a>
-          </li>
-        )}
-
+        <li>
+          <a className='time-icon' href={timeLink}>
+            <FaClock /> {time}
+          </a>
+        </li>
         {servings && (
           <li>
             <a className='servings-icon' href={servingsLink}>
               <GiForkKnifeSpoon /> {servings}
+            </a>
+          </li>
+        )}
+        {difficulty && (
+          <li>
+            <a className='difficulty-icon' href={difficultyLink}>
+              <LuChefHat /> {difficulty}
             </a>
           </li>
         )}

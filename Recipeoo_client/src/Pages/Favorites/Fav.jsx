@@ -5,28 +5,50 @@ import Pageheader from '../../Resuable Components/Page Header/Pageheader';
 import PopularTags from '../../Resuable Components/Populartags/Populatags';
 import { useDispatch } from 'react-redux';
 import { addToDownloads } from '../../Redux/Downloadslice';
+import { getStoredFavorites, isSignedInUser, isVideoItem, requireSignedInUser, saveStoredFavorites, showAppMessage } from '../../utils/collectionAccess';
 
 const Fav = () => {
   const [favorites, setFavorites] = useState([]);
   const dispatch = useDispatch();
+  const signedIn = isSignedInUser();
 
   useEffect(() => {
-    const storedFavorites = JSON.parse(localStorage.getItem('favorites')) || [];
-    setFavorites(storedFavorites);
-  }, []);
+    if (!signedIn) {
+      setFavorites([]);
+      return;
+    }
+
+    const storedFavorites = getStoredFavorites();
+    const recipeFavorites = storedFavorites.filter((item) => !isVideoItem(item));
+    setFavorites(recipeFavorites);
+
+    if (recipeFavorites.length !== storedFavorites.length) {
+      saveStoredFavorites(recipeFavorites);
+    }
+  }, [signedIn]);
 
 const handleRemoveFromFavorites = (indexToRemove) => {
   const updatedFavorites = favorites.filter((_, index) => index !== indexToRemove);
   setFavorites(updatedFavorites);
-  localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+  saveStoredFavorites(updatedFavorites);
 };
 
 const handleAddToDownload = (recipe) => {
+  if (!requireSignedInUser()) {
+    return;
+  }
+
+  if (isVideoItem(recipe)) {
+    showAppMessage('Video recipes cannot be added to downloads.');
+    return;
+  }
+
   const recipeWithId = {
     ...recipe,
     id: recipe.id || Date.now() + Math.random(), // ensure unique ID
   };
   dispatch(addToDownloads(recipeWithId));
+  showAppMessage('Recipe added to downloads.');
 };
 const tagData = [
   { name: 'COMFORT FOOD', link: '/tags/comfort-food' },
@@ -60,21 +82,18 @@ const tagData2 = [
 
       <div className="fav-card-sec">
         {favorites.length === 0 ? (
-          <p className="no-fav-msg">You have neither saved nor liked any recipes yet. Start exploring and save or like your favorites to find them easily later!</p>
+          <p className="no-fav-msg">
+            {signedIn
+              ? 'Nothing added to favorites yet.'
+              : 'Please sign in to view your favorite recipes.'}
+          </p>
         ) : (
           <div className="recipes-container">
             {favorites.map((item, index) => (
               <div key={index} className="fav-card-with-download">
                 <RecipeCard {...item} />
-                <button onClick={() => handleAddToDownload(item)} className="download-btn">
-                  Add to Download
-                </button>
-                <button
-            onClick={() => handleRemoveFromFavorites(index)}
-            className="remove-btn"
-          >
-            Remove
-          </button>
+                  <button onClick={() => handleAddToDownload(item)} className="download-btn">Add to Download</button>
+                  <button onClick={() => handleRemoveFromFavorites(index)} className="remove-btn">Remove from Favorites</button>
               </div>
             ))}
           </div>

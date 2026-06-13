@@ -10,9 +10,15 @@ import SearchPopup from '../../Components/Search/Search';
 import { recipecards } from '../../Pages/All Recipies/AllRecipe';
 import { FaCartArrowDown } from "react-icons/fa";
 import { getAdminAppUrl } from '../../config/api';
+import { useSelector } from 'react-redux';
+import { selectCurrentUserDownloads } from '../../Redux/Downloadslice';
+import { APP_MESSAGE_EVENT, isVideoItem } from '../../utils/collectionAccess';
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const [appMessage, setAppMessage] = useState('');
+  const downloads = useSelector(selectCurrentUserDownloads);
+  const downloadCount = downloads.filter((item) => !isVideoItem(item)).length;
 
   const handleAccountClick = () => {
     const userInfo = JSON.parse(localStorage.getItem('userInfo'));
@@ -32,6 +38,8 @@ const handleMenuItemClick = () => {
   setToggle(false);
 };
   const menuRef = useRef(null);
+  const messageTimeoutRef = useRef(null);
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (menuRef.current && !menuRef.current.contains(event.target)) {
@@ -43,6 +51,32 @@ const handleMenuItemClick = () => {
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleAppMessage = (event) => {
+      const nextMessage = event.detail?.message;
+      if (!nextMessage) return;
+
+      setAppMessage(nextMessage);
+
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+      }
+
+      messageTimeoutRef.current = setTimeout(() => {
+        setAppMessage('');
+      }, 3000);
+    };
+
+    window.addEventListener(APP_MESSAGE_EVENT, handleAppMessage);
+
+    return () => {
+      window.removeEventListener(APP_MESSAGE_EVENT, handleAppMessage);
+      if (messageTimeoutRef.current) {
+        clearTimeout(messageTimeoutRef.current);
+      }
     };
   }, []);
   return (
@@ -67,12 +101,27 @@ const handleMenuItemClick = () => {
         <Link to="/" className='logo' onClick={handleMenuItemClick}><img src={logo} alt="" /></Link>
         </div>
         <div className='nav-right'>
-          <li><Link to="/favorites" onClick={handleMenuItemClick}><MdFavoriteBorder /></Link></li>
-          <li><Link to="/download" onClick={handleMenuItemClick}><FaCartArrowDown /></Link></li>
+          <li>
+            <Link
+              to="/favorites"
+              onClick={handleMenuItemClick}
+              data-wishlist-target="true"
+              className="wishlist-nav-link"
+            >
+              <MdFavoriteBorder />
+            </Link>
+          </li>
+          <li>
+            <Link to="/download" onClick={handleMenuItemClick} className="download-nav-link">
+              <FaCartArrowDown />
+              <span className="download-count-badge">{downloadCount}</span>
+            </Link>
+          </li>
           <li><Link to="/account" onClick={handleAccountClick}><SiCodechef /></Link></li>
           <li><SearchPopup recipes={recipecards} /></li>
         </div>
       </nav>
+      {appMessage ? <div className="app-message-toast">{appMessage}</div> : null}
     </>
   );
 };

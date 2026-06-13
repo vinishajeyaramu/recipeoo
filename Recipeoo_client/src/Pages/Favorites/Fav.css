@@ -1,5 +1,6 @@
 .fav-card-sec {
-  padding: 2rem;
+  width: 95%;
+  margin: auto;
 }
 
 .no-fav-msg {
@@ -7,16 +8,29 @@
   font-size: 1.2rem;
   margin-top: 2rem;
 }
-
-.fav-card-with-remove {
-  position: relative;
-  display: inline-block;
-  margin: 1rem;
-}
 .recipes-container{
-    width: 95%;
-    margin: 0 auto;
+    width: 100%;  
 }
+.download-btn,.remove-btn{
+  width: 100%;
+  padding: 0.5rem;
+  color: #ebb22f;
+  background-color: white;
+  border: #ebb22f 2px solid;
+  border-radius: 8px;
+  
+}
+.remove-btn{
+  margin-top: 2%;
+}
+.download-btn:hover,.remove-btn:hover{
+  background-color: #ebb22f;
+  color: white;
+  border: 2px solid white;
+  transition: all 0.3s ease;
+}
+
+
 /* .remove-btn {
   margin-top: 0.5rem;
   display: block;

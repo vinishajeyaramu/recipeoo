@@ -6,5 +6,33 @@
     /* background-color: aqua; */
 }
 .button-sec button{
-    width: 50%;
+    width: 100%;
+}
+.download-btn,.remove-btn{
+  width: 100%;
+  padding: 0.5rem;
+  color: #ebb22f;
+  background-color: white;
+  border: #ebb22f 2px solid;
+  border-radius: 8px;
+  
+}
+.remove-btn{
+  margin-top: 2%;
+}
+.download-btn:hover,.remove-btn:hover{
+  background-color: #ebb22f;
+  color: white;
+  border: 2px solid white;
+  transition: all 0.3s ease;
+}
+.downloads-container p{
+    width: 95%;
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
 }
