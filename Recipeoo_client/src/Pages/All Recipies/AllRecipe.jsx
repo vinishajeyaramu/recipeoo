@@ -1,4 +1,4 @@
-import React, { useState, useEffect ,useRef} from 'react';
+import React, { useState, useEffect ,useRef, useCallback} from 'react';
 import './AllRecipes.css'
 import RecipeCard from '../../Resuable Components/Recipercards/Recipecards'
 import Pageheader from '../../Resuable Components/Page Header/Pageheader';
@@ -3436,10 +3436,10 @@ const RECIPES_PER_PAGE = 16;
 
 const AllRecipe = () => {
   const [searchParams, setSearchParams] = useSearchParams();
-  const getPageFromParams = () => {
+  const getPageFromParams = useCallback(() => {
     const pageParam = Number.parseInt(searchParams.get('page') || '1', 10);
     return Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1;
-  };
+  }, [searchParams]);
   const [currentPage, setCurrentPage] = useState(getPageFromParams);
   const [dbRecipes, setDbRecipes] = useState([]);
   const topRef = useRef(null);
