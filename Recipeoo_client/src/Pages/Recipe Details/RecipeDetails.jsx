@@ -220,9 +220,9 @@ const RecipeDetails = () => {
   const bottomRelatedRecipes = useMemo(() => relatedRecipes.slice(0, 3), [relatedRecipes]);
   const sidebarRelatedRecipes = useMemo(() => relatedRecipes.slice(3, 6), [relatedRecipes]);
   const sidebarBlogs = useMemo(
-    () => [...blogData].sort(() => Math.random() - 0.5).slice(0, 3),
-    // [title]
-  );
+  () => [...blogData].sort(() => Math.random() - 0.5).slice(0, 3),
+  [title]
+);
   const directionImages = (recipe.directions || [])
     .map((step, index) =>
       step.image

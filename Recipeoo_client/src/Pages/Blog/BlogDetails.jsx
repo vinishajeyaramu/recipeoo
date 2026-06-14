@@ -32,9 +32,9 @@ const tagData2 = [
   { name: 'VIDEO RECIPE', link: '/tags/video-recipe' },
 ];
 
-const placeholderGallery = Array.from({ length: 4 }, (_, index) => ({
-  id: `blog-placeholder-${index + 1}`,
-}));
+// const placeholderGallery = Array.from({ length: 4 }, (_, index) => ({
+//   id: `blog-placeholder-${index + 1}`,
+// }));
 
 const BlogDetails = () => {
   const { title } = useParams();

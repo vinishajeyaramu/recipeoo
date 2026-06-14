@@ -3473,7 +3473,7 @@ useEffect(() => {
   if (boundedPage !== currentPage) {
     setCurrentPage(boundedPage);
   }
-}, [searchParams, totalPages, currentPage]);
+}, [searchParams, totalPages, currentPage,getPageFromParams]);
 
  const changePage = (pageNum) => {
   if (pageNum >= 1 && pageNum <= totalPages) {
