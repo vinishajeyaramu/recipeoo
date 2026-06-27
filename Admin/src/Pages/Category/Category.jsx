@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { getAdminApiUrl } from '../../config/api';
 
 const createMongoLikeId = () =>
   Array.from({ length: 24 }, () => Math.floor(Math.random() * 16).toString(16)).join('');
@@ -11,7 +12,7 @@ const Category = () => {
 
   // Fetch categories
   useEffect(() => {
-    fetch('http://localhost:5000/api/categories')
+    fetch(getAdminApiUrl('/categories'))
       .then(res => res.json())
       .then(data => setCategories(data));
   }, []);
@@ -25,7 +26,7 @@ const Category = () => {
     }
     try {
       const isEditing = Boolean(editingCategory?._id);
-      const res = await fetch(`http://localhost:5000/api/categories${isEditing ? `/${editingCategory._id}` : ''}`, {
+      const res = await fetch(`${getAdminApiUrl('/categories')}${isEditing ? `/${editingCategory._id}` : ''}`, {
         method: isEditing ? 'PUT' : 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(isEditing ? { name: newCat.trim() } : { _id: createMongoLikeId(), name: newCat.trim() })
@@ -67,7 +68,7 @@ const Category = () => {
     if (!window.confirm(`Delete "${category.name}"?`)) return;
 
     try {
-      const res = await fetch(`http://localhost:5000/api/categories/${category._id}`, {
+      const res = await fetch(`${getAdminApiUrl('/categories')}/${category._id}`, {
         method: 'DELETE',
       });
 

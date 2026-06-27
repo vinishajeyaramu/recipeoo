@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './VidepRecipe.css';
+import { getAdminApiUrl, getAdminMediaUrl } from '../../config/api';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = getAdminApiUrl();
 
 const emptyCardForm = {
   title: '',
@@ -14,6 +15,8 @@ const emptyCardForm = {
   rating: '',
 };
 
+const emptyPreparationStep = { title: '', instruction: '' };
+
 const emptyRecipeForm = {
   title: '',
   category: '',
@@ -22,15 +25,11 @@ const emptyRecipeForm = {
   cuisineImage: null,
   difficulty: '',
   videoUrl: '',
+  preparationSteps: [{ ...emptyPreparationStep }],
+  stepImages: [null],
 };
 
 const normalizeList = (value) => (Array.isArray(value) ? value : []);
-
-const getMediaUrl = (value) => {
-  if (!value) return '';
-  if (typeof value !== 'string') return URL.createObjectURL(value);
-  return value.startsWith('/uploads') ? `http://localhost:5000${value}` : value;
-};
 
 const validateFields = (form, fields) => {
   for (const field of fields) {
@@ -41,6 +40,22 @@ const validateFields = (form, fields) => {
     }
   }
   return true;
+};
+
+const parseSteps = (value) => {
+  if (!value) return [{ ...emptyPreparationStep }];
+
+  try {
+    const parsed = typeof value === 'string' ? JSON.parse(value) : value;
+    return Array.isArray(parsed) && parsed.length
+      ? parsed.map((step) => ({
+          title: step.title || '',
+          instruction: step.instruction || '',
+        }))
+      : [{ ...emptyPreparationStep }];
+  } catch {
+    return [{ ...emptyPreparationStep }];
+  }
 };
 
 const VideoRecipe = () => {
@@ -125,6 +140,10 @@ const VideoRecipe = () => {
       cuisineImage: null,
       difficulty: item.difficulty || '',
       videoUrl: item.videoUrl || '',
+      preparationSteps: parseSteps(item.preparationSteps || item.instructions),
+      stepImages: Array.isArray(item.preparationSteps) && item.preparationSteps.length
+        ? item.preparationSteps.map((step) => step?.image || null)
+        : [null],
     });
     setShowRecipeModal(true);
   };
@@ -147,6 +166,44 @@ const VideoRecipe = () => {
             ? Array.from(files)
             : files[0]
           : value,
+    }));
+  };
+
+  const updatePreparationStep = (index, field, value) => {
+    setRecipeForm((current) => ({
+      ...current,
+      preparationSteps: current.preparationSteps.map((step, stepIndex) =>
+        stepIndex === index ? { ...step, [field]: value } : step
+      ),
+    }));
+  };
+
+  const updateStepImage = (index, file) => {
+    setRecipeForm((current) => ({
+      ...current,
+      stepImages: current.stepImages.map((image, imageIndex) => (imageIndex === index ? file : image)),
+    }));
+  };
+
+  const addPreparationStep = () => {
+    setRecipeForm((current) => ({
+      ...current,
+      preparationSteps: [...current.preparationSteps, { ...emptyPreparationStep }],
+      stepImages: [...current.stepImages, null],
+    }));
+  };
+
+  const removePreparationStep = (index) => {
+    setRecipeForm((current) => ({
+      ...current,
+      preparationSteps:
+        current.preparationSteps.length > 1
+          ? current.preparationSteps.filter((_, stepIndex) => stepIndex !== index)
+          : current.preparationSteps,
+      stepImages:
+        current.stepImages.length > 1
+          ? current.stepImages.filter((_, stepIndex) => stepIndex !== index)
+          : current.stepImages,
     }));
   };
 
@@ -232,6 +289,15 @@ const VideoRecipe = () => {
 
     if (!validateFields(recipeForm, requiredFields)) return;
 
+    const preparationSteps = recipeForm.preparationSteps.filter(
+      (step) => step.title || step.instruction
+    );
+
+    if (!preparationSteps.length) {
+      alert('Add at least one preparation step.');
+      return;
+    }
+
     const formData = new FormData();
     formData.append('title', recipeForm.title);
     formData.append('category', recipeForm.category);
@@ -239,10 +305,12 @@ const VideoRecipe = () => {
     formData.append('cuisine', recipeForm.cuisine);
     formData.append('difficulty', recipeForm.difficulty);
     formData.append('videoUrl', recipeForm.videoUrl);
+    formData.append('preparationSteps', JSON.stringify(preparationSteps));
     formData.append('type', 'Recipe');
     if (recipeForm.cuisineImage) {
       formData.append('cuisineImage', recipeForm.cuisineImage);
     }
+    recipeForm.stepImages.filter(Boolean).forEach((image) => formData.append('stepImages', image));
 
     const isEditing = Boolean(editingItem?._id);
 
@@ -334,12 +402,12 @@ const VideoRecipe = () => {
                     <td>
                       {item.cuisineImage ? (
                         <img
-                          src={getMediaUrl(item.cuisineImage)}
+                          src={getAdminMediaUrl(item.cuisineImage)}
                           alt={`${item.cuisine || 'cuisine'} visual`}
                           width="42"
                           height="42"
                           style={{ cursor: 'pointer' }}
-                          onClick={() => setPreviewMedia({ type: 'image', src: getMediaUrl(item.cuisineImage) })}
+                          onClick={() => setPreviewMedia({ type: 'image', src: getAdminMediaUrl(item.cuisineImage) })}
                         />
                       ) : (
                         '-'
@@ -352,22 +420,22 @@ const VideoRecipe = () => {
                         item.images.map((image, imageIndex) => (
                           <img
                             key={`${item._id || item.title}-image-${imageIndex}`}
-                            src={getMediaUrl(image)}
+                            src={getAdminMediaUrl(image)}
                             alt={`step ${imageIndex + 1}`}
                             width="60"
                             height="60"
                             style={{ marginRight: 4, cursor: 'pointer' }}
-                            onClick={() => setPreviewMedia({ type: 'image', src: getMediaUrl(image) })}
+                            onClick={() => setPreviewMedia({ type: 'image', src: getAdminMediaUrl(image) })}
                           />
                         ))
                       ) : item.image ? (
                         <img
-                          src={getMediaUrl(item.image)}
+                          src={getAdminMediaUrl(item.image)}
                           alt="thumb"
                           width="60"
                           height="60"
                           style={{ cursor: 'pointer' }}
-                          onClick={() => setPreviewMedia({ type: 'image', src: getMediaUrl(item.image) })}
+                          onClick={() => setPreviewMedia({ type: 'image', src: getAdminMediaUrl(item.image) })}
                         />
                       ) : (
                         '-'
@@ -380,9 +448,9 @@ const VideoRecipe = () => {
                           height="60"
                           controls
                           style={{ cursor: 'pointer' }}
-                          onClick={() => setPreviewMedia({ type: 'video', src: getMediaUrl(item.video) })}
+                          onClick={() => setPreviewMedia({ type: 'video', src: getAdminMediaUrl(item.video) })}
                         >
-                          <source src={getMediaUrl(item.video)} type="video/mp4" />
+                          <source src={getAdminMediaUrl(item.video)} type="video/mp4" />
                         </video>
                       ) : (
                         item.videoUrl ? (
@@ -457,6 +525,35 @@ const VideoRecipe = () => {
             <label className="field-label">Cuisine Image</label>
             <input name="cuisineImage" type="file" onChange={handleRecipeChange} />
             <input name="videoUrl" placeholder="Video Link" value={recipeForm.videoUrl} onChange={handleRecipeChange} />
+            <div className="dynamic-form-section blog-dynamic-section" style={{ marginTop: '14px' }}>
+              <div className="dynamic-form-heading">
+                <h3>Preparation Steps</h3>
+                <button type="button" onClick={addPreparationStep}>+</button>
+              </div>
+              {recipeForm.preparationSteps.map((step, index) => (
+                <div className="blog-list-section" key={`prep-step-${index}`}>
+                  <div className="dynamic-form-row blog-section-heading-row">
+                    <input
+                      placeholder="Step title"
+                      value={step.title}
+                      onChange={(event) => updatePreparationStep(index, 'title', event.target.value)}
+                    />
+                    <button type="button" onClick={() => removePreparationStep(index)}>-</button>
+                  </div>
+                  <textarea
+                    className="text-box"
+                    placeholder="Step instruction"
+                    value={step.instruction}
+                    onChange={(event) => updatePreparationStep(index, 'instruction', event.target.value)}
+                  />
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(event) => updateStepImage(index, event.target.files?.[0] || null)}
+                  />
+                </div>
+              ))}
+            </div>
             <div className="modal-buttons">
               <button onClick={handleRecipeSubmit}>{editingItem ? 'Update' : 'Save'}</button>
               <button onClick={closeModals}>Cancel</button>

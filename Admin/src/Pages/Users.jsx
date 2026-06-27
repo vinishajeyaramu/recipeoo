@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { getAdminApiUrl } from '../config/api';
 
-const USER_ENDPOINTS = ['http://localhost:5000/api/users'];
+const USER_ENDPOINTS = [getAdminApiUrl('/users')];
 
 const normalizeUsers = (payload) => (Array.isArray(payload) ? payload : []);
 

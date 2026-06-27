@@ -13,6 +13,13 @@ const VideoRecipeSchema = new mongoose.Schema({
   serves: String,
   ingredients: String,
   instructions: String,
+  preparationSteps: [
+    {
+      title: String,
+      instruction: String,
+      image: String,
+    },
+  ],
   description: String,
   description2: String,
   author: String,

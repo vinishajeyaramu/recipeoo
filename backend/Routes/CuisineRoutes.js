@@ -1,7 +1,23 @@
 const express = require('express');
+const multer = require('multer');
 const Cuisine = require('../Model/CuisineModel');
 
 const router = express.Router();
+const upload = multer({ dest: 'uploads/' });
+
+const buildCuisinePayload = (req, existingCuisine = {}) => {
+  const payload = {
+    name: (req.body.name || '').trim(),
+  };
+
+  if (req.files?.image?.[0]) {
+    payload.image = `/uploads/${req.files.image[0].filename}`;
+  } else if (existingCuisine.image) {
+    payload.image = existingCuisine.image;
+  }
+
+  return payload;
+};
 
 router.get('/', async (req, res) => {
   try {
@@ -12,7 +28,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.post('/', async (req, res) => {
+router.post('/', upload.fields([{ name: 'image', maxCount: 1 }]), async (req, res) => {
   try {
     const name = (req.body.name || '').trim();
     if (!name) {
@@ -24,7 +40,7 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ error: 'Cuisine already exists' });
     }
 
-    const cuisine = new Cuisine({ name });
+    const cuisine = new Cuisine(buildCuisinePayload(req));
     await cuisine.save();
     res.status(201).json(cuisine);
   } catch (error) {
@@ -44,18 +60,23 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', upload.fields([{ name: 'image', maxCount: 1 }]), async (req, res) => {
   try {
-    const name = (req.body.name || '').trim();
-    const cuisine = await Cuisine.findByIdAndUpdate(
-      req.params.id,
-      { name },
-      { new: true, runValidators: true }
-    );
-
-    if (!cuisine) {
+    const existingCuisine = await Cuisine.findById(req.params.id);
+    if (!existingCuisine) {
       return res.status(404).json({ error: 'Not found' });
     }
+
+    const name = (req.body.name || '').trim();
+    if (!name) {
+      return res.status(400).json({ error: 'Cuisine name required' });
+    }
+
+    const cuisine = await Cuisine.findByIdAndUpdate(
+      req.params.id,
+      buildCuisinePayload(req, existingCuisine),
+      { new: true, runValidators: true }
+    );
 
     res.json(cuisine);
   } catch (error) {

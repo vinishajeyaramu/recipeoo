@@ -11,6 +11,7 @@ const blogSchema = new mongoose.Schema(
     category: String,
     cardImage: String,
     heroImage: String,
+    shortInfo: String,
     galleryImages: [String],
     author: String,
     publishedAt: String,
@@ -18,6 +19,12 @@ const blogSchema = new mongoose.Schema(
     readTime: String,
     excerpt: String,
     intro: String,
+    contentSections: [
+      {
+        heading: String,
+        content: String,
+      },
+    ],
     openingSections: [
       {
         heading: String,
@@ -36,6 +43,10 @@ const blogSchema = new mongoose.Schema(
         items: [String],
       },
     ],
+    numberedTipsTitle: String,
+    numberedTips: [String],
+    bulletTipsTitle: String,
+    bulletTips: [String],
     sectionOneTitle: String,
     sectionOneBody: String,
     sectionTwoTitle: String,

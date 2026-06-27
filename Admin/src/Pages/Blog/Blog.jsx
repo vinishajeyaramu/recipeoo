@@ -1,12 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './Blog.css';
+import { getAdminApiUrl, getAdminMediaUrl } from '../../config/api';
 
-const API_BASE = 'http://localhost:5000/api/blogs';
+const API_BASE = getAdminApiUrl('/blogs');
 
 const emptyCardForm = {
   title: '',
   category: '',
-  cardImage: null,
+  heroImage: null,
   author: '',
   publishedAt: '',
   comments: '',
@@ -14,7 +15,7 @@ const emptyCardForm = {
 };
 
 const emptyOpeningSection = { heading: '', text: '' };
-const emptyListSection = { heading: '', items: [''] };
+const emptyListSection = { heading: '', items: ['', '', '', '', ''] };
 
 const emptyBlogForm = {
   title: '',
@@ -24,6 +25,7 @@ const emptyBlogForm = {
   publishedAt: '',
   comments: '',
   readTime: '',
+  shortInfo: '',
   excerpt: '',
   openingSections: [{ ...emptyOpeningSection }],
   numberedSections: [{ ...emptyListSection }],
@@ -58,12 +60,15 @@ const normalizeListSections = (sections, legacyTitle = '', legacyItems = []) => 
   if (Array.isArray(sections) && sections.length) {
     return sections.map((section) => ({
       heading: section.heading || '',
-      items: Array.isArray(section.items) && section.items.length ? section.items : [''],
+      items:
+        Array.isArray(section.items) && section.items.length
+          ? section.items
+          : ['', '', '', '', ''],
     }));
   }
 
   if (legacyTitle || legacyItems.length) {
-    return [{ heading: legacyTitle || '', items: legacyItems.length ? legacyItems : [''] }];
+    return [{ heading: legacyTitle || '', items: legacyItems.length ? legacyItems : ['', '', '', '', ''] }];
   }
 
   return [{ ...emptyListSection }];
@@ -167,7 +172,7 @@ const Blog = () => {
   const addListSection = (sectionField) => {
     setBlogForm((current) => ({
       ...current,
-      [sectionField]: [...current[sectionField], { ...emptyListSection }],
+      [sectionField]: [...current[sectionField], { ...emptyListSection, items: ['', '', '', '', ''] }],
     }));
   };
 
@@ -185,7 +190,9 @@ const Blog = () => {
     setBlogForm((current) => ({
       ...current,
       [sectionField]: current[sectionField].map((section, index) =>
-        index === sectionIndex ? { ...section, items: [...section.items, ''] } : section
+        index === sectionIndex && section.items.length < 8
+          ? { ...section, items: [...section.items, ''] }
+          : section
       ),
     }));
   };
@@ -198,7 +205,7 @@ const Blog = () => {
           ? {
               ...section,
               items:
-                section.items.length > 1
+                section.items.length > 5
                   ? section.items.filter((_, currentItemIndex) => currentItemIndex !== itemIndex)
                   : section.items,
             }
@@ -226,7 +233,7 @@ const Blog = () => {
       setCardForm({
         title: item.title || '',
         category: item.category || '',
-        cardImage: null,
+        heroImage: null,
         author: item.author || '',
         publishedAt: item.publishedAt || '',
         comments: item.comments || '',
@@ -244,6 +251,7 @@ const Blog = () => {
       publishedAt: item.publishedAt || '',
       comments: item.comments || '',
       readTime: item.readTime || '',
+      shortInfo: item.shortInfo || '',
       excerpt: item.excerpt || '',
       openingSections: normalizeOpeningSections(item),
       numberedSections: normalizeListSections(
@@ -278,10 +286,10 @@ const Blog = () => {
     const formData = new FormData();
     formData.append('type', 'Card');
     Object.entries(cardForm).forEach(([key, value]) => {
-      if (key === 'cardImage') return;
+      if (key === 'heroImage') return;
       formData.append(key, value);
     });
-    if (cardForm.cardImage) formData.append('cardImage', cardForm.cardImage);
+    if (cardForm.heroImage) formData.append('heroImage', cardForm.heroImage);
 
     const response = await fetch(editingItem ? `${API_BASE}/${editingItem._id}` : API_BASE, {
       method: editingItem ? 'PUT' : 'POST',
@@ -303,6 +311,7 @@ const Blog = () => {
       'publishedAt',
       'comments',
       'readTime',
+      'shortInfo',
       'excerpt',
       'conclusion',
     ];
@@ -319,6 +328,16 @@ const Blog = () => {
         items: section.items.filter(Boolean),
       }))
       .filter((section) => section.heading || section.items.length);
+
+    if (numberedSections.some((section) => section.items.length < 5)) {
+      alert('Please add at least 5 numbered tips in each numbered section.');
+      return;
+    }
+
+    if (pointedSections.some((section) => section.items.length < 5)) {
+      alert('Please add at least 5 bullet tips in each bullet section.');
+      return;
+    }
     const pointedSections = blogForm.pointedSections
       .map((section) => ({
         heading: section.heading,
@@ -478,7 +497,7 @@ const Blog = () => {
                     <td>
                       {item.cardImage || item.heroImage ? (
                         <img
-                          src={`http://localhost:5000${item.cardImage || item.heroImage}`}
+                          src={getAdminMediaUrl(item.cardImage || item.heroImage)}
                           alt={item.title}
                           width="56"
                           height="56"
@@ -516,7 +535,7 @@ const Blog = () => {
             <input name="title" placeholder="Title" value={cardForm.title} onChange={handleCardChange} />
             <input name="category" placeholder="Blog Category" value={cardForm.category} onChange={handleCardChange} />
             <label className="field-label">Blog Card Image</label>
-            <input name="cardImage" type="file" onChange={handleCardChange} />
+            <input name="heroImage" type="file" onChange={handleCardChange} />
             <input name="author" placeholder="Author" value={cardForm.author} onChange={handleCardChange} />
             <input name="publishedAt" type="date" value={cardForm.publishedAt} onChange={handleCardChange} />
             <input name="comments" placeholder="Comment count" value={cardForm.comments} onChange={handleCardChange} />
@@ -542,11 +561,12 @@ const Blog = () => {
               <input name="readTime" placeholder="Read time (example: 5 min)" value={blogForm.readTime} onChange={handleBlogChange} />
             </div>
             <input name="heroImage" type="file" onChange={handleBlogChange} />
+            <input name="shortInfo" placeholder="Short info" value={blogForm.shortInfo} onChange={handleBlogChange} />
             <textarea className="text-box" name="excerpt" placeholder="Short hero excerpt" value={blogForm.excerpt} onChange={handleBlogChange} />
 
             <div className="dynamic-form-section blog-dynamic-section">
               <div className="dynamic-form-heading">
-                <h3>Opening Paragraphs</h3>
+                <h3>Content Blocks</h3>
                 <button type="button" onClick={addOpeningSection}>+</button>
               </div>
               {blogForm.openingSections.map((section, index) => (

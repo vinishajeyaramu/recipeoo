@@ -1,13 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { getAdminApiUrl, getAdminMediaUrl } from '../../config/api';
 
-const CUISINE_ENDPOINTS = [
-  'http://localhost:5000/api/cuisines',
-  'http://localhost:5000/api/cuisine',
-];
+const CUISINE_ENDPOINTS = [getAdminApiUrl('/cuisines'), getAdminApiUrl('/cuisine')];
 
 const Cuisine = () => {
   const [cuisines, setCuisines] = useState([]);
   const [newCuisine, setNewCuisine] = useState('');
+  const [cuisineImage, setCuisineImage] = useState(null);
   const [editingCuisine, setEditingCuisine] = useState(null);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
@@ -23,9 +22,7 @@ const Cuisine = () => {
       for (const endpoint of CUISINE_ENDPOINTS) {
         try {
           const response = await fetch(endpoint);
-          if (!response.ok) {
-            continue;
-          }
+          if (!response.ok) continue;
 
           const data = await response.json();
           if (!isMounted) return;
@@ -39,7 +36,7 @@ const Cuisine = () => {
       }
 
       if (isMounted) {
-        setInfo('Cuisine backend endpoint is not available yet. The page UI is ready once the API is added.');
+        setInfo('Cuisine backend endpoint is not available yet.');
       }
     };
 
@@ -68,10 +65,15 @@ const Cuisine = () => {
     try {
       const isEditing = Boolean(editingCuisine?._id || editingCuisine?.id);
       const cuisineId = editingCuisine?._id || editingCuisine?.id;
+      const formData = new FormData();
+      formData.append('name', newCuisine.trim());
+      if (cuisineImage) {
+        formData.append('image', cuisineImage);
+      }
+
       const response = await fetch(`${activeEndpoint}${isEditing ? `/${cuisineId}` : ''}`, {
         method: isEditing ? 'PUT' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newCuisine.trim() }),
+        body: formData,
       });
 
       if (!response.ok) {
@@ -85,6 +87,7 @@ const Cuisine = () => {
           : [...current, cuisine]
       );
       setNewCuisine('');
+      setCuisineImage(null);
       setEditingCuisine(null);
     } catch (submitError) {
       setError(submitError.message);
@@ -94,6 +97,7 @@ const Cuisine = () => {
   const handleEditCuisine = (cuisine) => {
     setEditingCuisine(cuisine);
     setNewCuisine(cuisine.name || cuisine.title || '');
+    setCuisineImage(null);
     setError('');
     setInfo('');
   };
@@ -101,6 +105,7 @@ const Cuisine = () => {
   const handleCancelEdit = () => {
     setEditingCuisine(null);
     setNewCuisine('');
+    setCuisineImage(null);
     setError('');
     setInfo('');
   };
@@ -158,6 +163,12 @@ const Cuisine = () => {
               onChange={(event) => setNewCuisine(event.target.value)}
               placeholder={editingCuisine ? 'Edit cuisine' : 'Add a new cuisine'}
             />
+            <input
+              className="page-input"
+              type="file"
+              accept="image/*"
+              onChange={(event) => setCuisineImage(event.target.files?.[0] || null)}
+            />
             <button type="submit">{editingCuisine ? 'Update Cuisine' : 'Add Cuisine'}</button>
             {editingCuisine && <button type="button" onClick={handleCancelEdit}>Cancel</button>}
           </form>
@@ -170,7 +181,18 @@ const Cuisine = () => {
             {cuisines.length ? (
               cuisines.map((cuisine) => (
                 <div className="page-list-item" key={cuisine._id || cuisine.id || cuisine.name}>
-                  <strong>{cuisine.name || cuisine.title || 'Cuisine'}</strong>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    {cuisine.image ? (
+                      <img
+                        src={getAdminMediaUrl(cuisine.image)}
+                        alt={cuisine.name || 'Cuisine'}
+                        width="42"
+                        height="42"
+                        style={{ borderRadius: '999px', objectFit: 'cover' }}
+                      />
+                    ) : null}
+                    <strong>{cuisine.name || cuisine.title || 'Cuisine'}</strong>
+                  </div>
                   <div className="table-action-group">
                     <button className="table-action-button edit" onClick={() => handleEditCuisine(cuisine)}>Edit</button>
                     <button className="table-action-button delete" onClick={() => handleDeleteCuisine(cuisine)}>Delete</button>

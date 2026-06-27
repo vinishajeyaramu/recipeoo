@@ -11,6 +11,16 @@ const toList = (value) =>
       ? value
       : [];
 
+const parseJsonField = (value, fallback = []) => {
+  if (typeof value !== 'string') return Array.isArray(value) ? value : fallback;
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
 // Get all recipes
 router.get('/', async (req, res) => {
   const videorecipes = await VideoRecipe.find();
@@ -24,6 +34,7 @@ router.post(
     { name: 'image', maxCount: 1 },
     { name: 'cuisineImage', maxCount: 1 },
     { name: 'images', maxCount: 6 },
+    { name: 'stepImages', maxCount: 12 },
     { name: 'video', maxCount: 1 }
   ]),
   async (req, res) => {
@@ -37,9 +48,17 @@ router.post(
     const cuisineImage = req.files['cuisineImage'] && req.files['cuisineImage'][0]
       ? `/uploads/${req.files['cuisineImage'][0].filename}`
       : '';
+    const stepImages = req.files['stepImages']
+      ? req.files['stepImages'].map(file => `/uploads/${file.filename}`)
+      : [];
     const video = req.files['video'] && req.files['video'][0]
       ? `/uploads/${req.files['video'][0].filename}`
       : '';
+    const preparationSteps = parseJsonField(req.body.preparationSteps, []).map((step, index) => ({
+      title: step.title || '',
+      instruction: step.instruction || '',
+      image: stepImages[index] || step.image || '',
+    }));
     const newvideoRecipe = new VideoRecipe({
       title,
       category,
@@ -54,6 +73,7 @@ router.post(
       serves,
       ingredients,
       instructions,
+      preparationSteps,
       description,
       description2,
       author,
@@ -73,6 +93,7 @@ router.put('/:id',
     { name: 'image', maxCount: 1 },
     { name: 'cuisineImage', maxCount: 1 },
     { name: 'images', maxCount: 6 },
+    { name: 'stepImages', maxCount: 12 },
     { name: 'video', maxCount: 1 }
   ]), 
   async (req, res) => {
@@ -88,6 +109,17 @@ router.put('/:id',
 
     if (req.files['images']) {
       updateData.images = req.files['images'].map(file => `/uploads/${file.filename}`);
+    }
+    if (req.files['stepImages']) {
+      const stepImages = req.files['stepImages'].map(file => `/uploads/${file.filename}`);
+      const steps = parseJsonField(updateData.preparationSteps, []).map((step, index) => ({
+        title: step.title || '',
+        instruction: step.instruction || '',
+        image: stepImages[index] || step.image || '',
+      }));
+      updateData.preparationSteps = steps;
+    } else if (typeof updateData.preparationSteps === 'string') {
+      updateData.preparationSteps = parseJsonField(updateData.preparationSteps, []);
     }
 
     if (req.files['video']) {

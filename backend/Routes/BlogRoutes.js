@@ -11,6 +11,16 @@ const blogUpload = upload.fields([
   { name: 'galleryImages', maxCount: 8 },
 ]);
 
+const parseJsonField = (value, fallback = []) => {
+  if (typeof value !== 'string') return Array.isArray(value) ? value : fallback;
+  try {
+    const parsed = JSON.parse(value);
+    return Array.isArray(parsed) ? parsed : fallback;
+  } catch {
+    return fallback;
+  }
+};
+
 const buildBlogPayload = (req) => {
   const payload = { ...req.body };
 
@@ -33,15 +43,12 @@ const buildBlogPayload = (req) => {
       .filter(Boolean);
   }
 
-  ['openingSections', 'numberedSections', 'pointedSections'].forEach((field) => {
-    if (typeof payload[field] !== 'string') return;
-
-    try {
-      payload[field] = JSON.parse(payload[field]);
-    } catch {
-      payload[field] = [];
-    }
-  });
+  payload.openingSections = parseJsonField(payload.openingSections);
+  payload.numberedSections = parseJsonField(payload.numberedSections);
+  payload.pointedSections = parseJsonField(payload.pointedSections);
+  payload.contentSections = parseJsonField(payload.contentSections);
+  payload.numberedTips = parseJsonField(payload.numberedTips);
+  payload.bulletTips = parseJsonField(payload.bulletTips);
 
   return payload;
 };

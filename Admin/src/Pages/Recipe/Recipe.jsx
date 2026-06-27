@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './Recipe.css';
+import { getAdminApiUrl, getAdminMediaUrl } from '../../config/api';
 
-const API_BASE = 'http://localhost:5000/api';
+const API_BASE = getAdminApiUrl();
 
 const emptyCardForm = {
   title: '',
@@ -40,12 +41,6 @@ const emptyRecipeForm = {
 };
 
 const normalizeList = (value) => (Array.isArray(value) ? value : []);
-
-const getMediaUrl = (value) => {
-  if (!value) return '';
-  if (typeof value !== 'string') return URL.createObjectURL(value);
-  return value.startsWith('/uploads') ? `http://localhost:5000${value}` : value;
-};
 
 const validateFields = (form, fields) => {
   for (const field of fields) {
@@ -470,12 +465,12 @@ const Recipe = () => {
                     <td>
                       {item.cuisineImage ? (
                         <img
-                          src={getMediaUrl(item.cuisineImage)}
+                          src={getAdminMediaUrl(item.cuisineImage)}
                           alt={`${item.cuisine || 'cuisine'} visual`}
                           width="42"
                           height="42"
                           style={{ cursor: 'pointer' }}
-                          onClick={() => setPreviewMedia({ type: 'image', src: getMediaUrl(item.cuisineImage) })}
+                          onClick={() => setPreviewMedia({ type: 'image', src: getAdminMediaUrl(item.cuisineImage) })}
                         />
                       ) : (
                         '-'
@@ -489,22 +484,22 @@ const Recipe = () => {
                         item.images.map((image, imageIndex) => (
                           <img
                             key={`${item._id || item.title}-image-${imageIndex}`}
-                            src={getMediaUrl(image)}
+                            src={getAdminMediaUrl(image)}
                             alt={`step ${imageIndex + 1}`}
                             width="60"
                             height="60"
                             style={{ marginRight: 4, cursor: 'pointer' }}
-                            onClick={() => setPreviewMedia({ type: 'image', src: getMediaUrl(image) })}
+                            onClick={() => setPreviewMedia({ type: 'image', src: getAdminMediaUrl(image) })}
                           />
                         ))
                       ) : item.image ? (
                         <img
-                          src={getMediaUrl(item.image)}
+                          src={getAdminMediaUrl(item.image)}
                           alt="thumb"
                           width="60"
                           height="60"
                           style={{ cursor: 'pointer' }}
-                          onClick={() => setPreviewMedia({ type: 'image', src: getMediaUrl(item.image) })}
+                          onClick={() => setPreviewMedia({ type: 'image', src: getAdminMediaUrl(item.image) })}
                         />
                       ) : (
                         '-'
@@ -517,9 +512,9 @@ const Recipe = () => {
                           height="60"
                           controls
                           style={{ cursor: 'pointer' }}
-                          onClick={() => setPreviewMedia({ type: 'video', src: getMediaUrl(item.video) })}
+                          onClick={() => setPreviewMedia({ type: 'video', src: getAdminMediaUrl(item.video) })}
                         >
-                          <source src={getMediaUrl(item.video)} type="video/mp4" />
+                          <source src={getAdminMediaUrl(item.video)} type="video/mp4" />
                         </video>
                       ) : (
                         '-'

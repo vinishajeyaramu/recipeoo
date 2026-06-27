@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './Downloads.css';
+import { getAdminApiUrl } from '../../config/api';
 
 const Downloads = () => {
   const [downloads, setDownloads] = useState([]);
@@ -8,7 +9,7 @@ const Downloads = () => {
   useEffect(() => {
     const loadDownloads = async () => {
       try {
-        const response = await fetch('http://localhost:5000/api/downloads');
+        const response = await fetch(getAdminApiUrl('/downloads'));
         const data = await response.json();
         setDownloads(Array.isArray(data) ? data : []);
       } catch (error) {

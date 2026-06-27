@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './Dashboard.css';
+import { getAdminApiUrl } from '../../config/api';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = getAdminApiUrl();
 
 const metricPalette = [
   { key: 'recipes', label: 'Recipe Cards', color: '#EBB22F' },
