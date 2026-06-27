@@ -321,35 +321,33 @@ const Blog = () => {
       return;
     }
 
-    const openingSections = blogForm.openingSections.filter((section) => section.heading || section.text);
-    const numberedSections = blogForm.numberedSections
-      .map((section) => ({
-        heading: section.heading,
-        items: section.items.filter(Boolean),
-      }))
-      .filter((section) => section.heading || section.items.length);
+    const openingSections = blogForm.openingSections.filter(
+  (section) => section.heading || section.text
+);
 
-    if (numberedSections.some((section) => section.items.length < 5)) {
-      alert('Please add at least 5 numbered tips in each numbered section.');
-      return;
-    }
+const numberedSections = blogForm.numberedSections
+  .map((section) => ({
+    heading: section.heading,
+    items: section.items.filter(Boolean),
+  }))
+  .filter((section) => section.heading || section.items.length);
 
-    if (pointedSections.some((section) => section.items.length < 5)) {
-      alert('Please add at least 5 bullet tips in each bullet section.');
-      return;
-    }
-    const pointedSections = blogForm.pointedSections
-      .map((section) => ({
-        heading: section.heading,
-        items: section.items.filter(Boolean),
-      }))
-      .filter((section) => section.heading || section.items.length);
+if (numberedSections.some((section) => section.items.length < 5)) {
+  alert('Please add at least 5 numbered tips in each numbered section.');
+  return;
+}
 
-    if (!openingSections.length) {
-      alert('Please add at least one opening paragraph.');
-      return;
-    }
+const pointedSections = blogForm.pointedSections
+  .map((section) => ({
+    heading: section.heading,
+    items: section.items.filter(Boolean),
+  }))
+  .filter((section) => section.heading || section.items.length);
 
+if (pointedSections.some((section) => section.items.length < 5)) {
+  alert('Please add at least 5 bullet tips in each bullet section.');
+  return;
+}
     const formData = new FormData();
     formData.append('type', 'Blog');
     Object.entries(blogForm).forEach(([key, value]) => {
